@@ -107,6 +107,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_KEY }}
+          envs: DB_URL,DB_USERNAME,DB_PASSWORD,DOCKER_USERNAME
           script: |
             echo "📋 Environment variables:"
             echo "DB_URL: $DB_URL"
