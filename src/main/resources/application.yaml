@@ -35,6 +35,9 @@ spring:
     api_key: ${API_KEY}
     api_secret: ${API_SECRET}
 
+jwt:
+  secret: ${JWT_SECRET}
+
 server:
   port: 8080
   error:
