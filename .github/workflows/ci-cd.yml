@@ -108,17 +108,28 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/ecommerce:latest
-
+            echo "📋 Environment variables:"
+            echo "DB_URL: $DB_URL"
+            echo "DB_USERNAME: $DB_USERNAME"
+            echo "DOCKER_USERNAME: $DOCKER_USERNAME"
+            
+            docker pull $DOCKER_USERNAME/ecommerce:latest
             docker stop ecommerce || true
             docker rm ecommerce || true
-
             docker image prune -f
-
+            
+            echo "🚀 Starting container with DB_URL: $DB_URL"
             docker run -d \
               --name ecommerce \
               -p 8080:8080 \
-              -e DB_URL=${{ secrets.DB_URL }} \
-              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              ${{ secrets.DOCKER_USERNAME }}/ecommerce:latest
+              -e DB_URL="$DB_URL" \
+              -e DB_USERNAME="$DB_USERNAME" \
+              -e DB_PASSWORD="$DB_PASSWORD" \
+              $DOCKER_USERNAME/ecommerce:latest
+            
+            sleep 8
+            echo "📋 Container Environment:"
+            docker exec ecommerce env | grep DB_
+            
+            echo "📋 Application Logs:"
+            docker logs ecommerce
