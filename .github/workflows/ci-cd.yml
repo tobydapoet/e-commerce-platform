@@ -28,6 +28,13 @@ jobs:
           DB_URL: ${{ secrets.DB_URL }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GOOGLE_CLIENT: ${{ secrets.GOOGLE_CLIENT }}
+          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+          REDIRECT_URI: ${{ secrets.REDIRECT_URI }}
+          CLOUD_NAME: ${{ secrets.CLOUD_NAME }}
+          API_KEY: ${{ secrets.API_KEY }}
+          API_SECRET: ${{ secrets.API_SECRET }}
 
   build:
     needs: test
