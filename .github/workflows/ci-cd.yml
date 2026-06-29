@@ -83,10 +83,11 @@ jobs:
           API_KEY: ${{ secrets.API_KEY }}
           API_SECRET: ${{ secrets.API_SECRET }}
         run: |
-          mvn verify sonar:sonar \
-            -Dsonar.projectKey=ecommerce \
+          mvn verify org.sonarsource.scanner.maven:sonar-maven-plugin:4.0.0.4121:sonar \
+            -Dsonar.projectKey=tobydapoet_e-commerce-platform \
+            -Dsonar.organization=tobydapoet \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
   deploy:
     needs: [ build, sonar ]
