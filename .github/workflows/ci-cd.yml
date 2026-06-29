@@ -24,6 +24,10 @@ jobs:
 
       - name: Run tests
         run: mvn clean test
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
   build:
     needs: test
@@ -42,12 +46,6 @@ jobs:
 
       - name: Build jar
         run: mvn clean package -DskipTests
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-jar
-          path: target/*.jar
 
   sonar:
     needs: test
@@ -71,65 +69,36 @@ jobs:
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
-  docker:
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Login Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build & Push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/ecommerce:latest
-            ${{ secrets.DOCKER_USERNAME }}/ecommerce:${{ github.sha }}
-
   deploy:
-    needs: docker
+    needs: [ build, sonar ]
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            echo "📋 Environment variables:"
-            echo "DB_URL: ${{ secrets.DB_URL }}"
-            echo "DB_USERNAME: ${{ secrets.DB_USERNAME }}"
-            echo "DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}"
+      - name: Deploy to Render
+        run: |
+          echo "🚀 Triggering Render deployment..."
 
-            docker pull ${{ secrets.DOCKER_USERNAME }}/ecommerce:latest
-            docker stop ecommerce || true
-            docker rm ecommerce || true
-            docker image prune -f
+          # Trigger deploy
+          RESPONSE=$(curl -s -X POST \
+            "https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}")
 
-            echo "🚀 Starting container..."
-            docker run -d \
-              --name ecommerce \
-              -p 8080:8080 \
-              -e DB_URL="${{ secrets.DB_URL }}" \
-              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
-              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              ${{ secrets.DOCKER_USERNAME }}/ecommerce:latest
+          echo "📋 Deploy Response:"
+          echo "$RESPONSE"
 
-            sleep 8
-            echo "📋 Container Environment:"
-            docker exec ecommerce env | grep DB_
+          # Check if successful
+          if echo "$RESPONSE" | grep -q "success\|triggered"; then
+            echo "✅ Deploy triggered successfully!"
+          else
+            echo "⚠️ Deploy response:"
+            echo "$RESPONSE"
+          fi
 
-            echo "📋 Application Logs:"
-            docker logs ecommerce
+      - name: Wait and Check Status
+        run: |
+          echo "⏳ Waiting for Render deployment..."
+          sleep 30
+
+          echo "📋 Checking Render status..."
+          curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            "https://api.render.com/v1/services/srv-${{ secrets.RENDER_SERVICE_ID }}" | jq '.service.status'
