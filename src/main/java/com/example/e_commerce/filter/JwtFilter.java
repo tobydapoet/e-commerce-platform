@@ -1,6 +1,8 @@
 package com.example.e_commerce.filter;
 
+import com.example.e_commerce.entity.User;
 import com.example.e_commerce.service.JwtService;
+import com.example.e_commerce.service.UserService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -18,12 +20,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
+    private final UserService userService;
 
     protected void doFilterInternal(
             HttpServletRequest request,
@@ -42,13 +46,19 @@ public class JwtFilter extends OncePerRequestFilter {
         String userId = claims.get("userId", String.class);
         List<String> roles = claims.get("roles", List.class);
 
+        User user = userService.findById(UUID.fromString(userId));
+        if (user == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         Collection<GrantedAuthority> authorities =
                 roles.stream()
                         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                         .collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                userId,
+                user,
                 null,
                 authorities
         );

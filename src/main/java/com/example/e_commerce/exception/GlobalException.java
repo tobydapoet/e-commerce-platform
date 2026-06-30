@@ -11,6 +11,35 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalException {
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorRes> handleUnauthorized(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorRes(
+                        "UNAUTHORIZED",
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorRes> handleForbidden(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorRes(
+                        "FORBIDDEN",
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorRes> handleResourceNotFound(ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorRes(
+                        "RESOURCE_NOT_FOUND",
+                        ex.getMessage(),
+                        null
+                ));
+    }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorRes> handleHttpMessageNotReadable(

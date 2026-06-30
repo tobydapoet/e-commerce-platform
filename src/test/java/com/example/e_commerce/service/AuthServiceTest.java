@@ -13,8 +13,6 @@ import com.example.e_commerce.repository.RoleRepository;
 import com.example.e_commerce.repository.SessionRepository;
 import com.example.e_commerce.repository.UserRepository;
 import com.example.e_commerce.repository.UserRoleRepository;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
