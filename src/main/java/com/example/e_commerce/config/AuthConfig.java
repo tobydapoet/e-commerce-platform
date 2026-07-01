@@ -2,6 +2,7 @@ package com.example.e_commerce.config;
 
 import com.example.e_commerce.filter.JwtFilter;
 import com.example.e_commerce.handler.OauthHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,27 +33,48 @@ public class AuthConfig {
                                 "/oauth2/**",
                                 "/login/**",
                                 "/google/**",
-                                "/error"
+                                "/error",
+                                "/test/**"
                         )
                         .permitAll()
 
                         .anyRequest()
                         .authenticated()
                 )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, ex) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.getWriter().write("""
+                                {
+                                  "code":"UNAUTHORIZED",
+                                  "message":"Authentication required",
+                                  "errors":null
+                                }
+                            """);
+                        })
+                        .accessDeniedHandler((request, response, ex) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            response.getWriter().write("""
+                            {
+                              "code":"FORBIDDEN",
+                              "message":"Access denied",
+                              "errors":null
+                            }
+                            """);
+                        })
+                )
 
                 .oauth2Login(oauth2 -> oauth2
-                        // Login page cho form-based login
                         .loginPage("/login")
 
-                        // Success handler cho OAuth
                         .successHandler(oauthHandler)
 
-                        // Authorization endpoint
                         .authorizationEndpoint(auth -> auth
                                 .baseUri("/oauth2/authorize")
                         )
 
-                        // Callback endpoint từ OAuth provider
                         .redirectionEndpoint(redirect -> redirect
                                 .baseUri("/login/oauth2/code/*")
                         )
@@ -61,7 +83,7 @@ public class AuthConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
 
                 .logout(logout -> logout
-                        .logoutUrl("/api/auth/logout")
+                        .logoutUrl("/auth/logout")
                         .permitAll()
                 );
 

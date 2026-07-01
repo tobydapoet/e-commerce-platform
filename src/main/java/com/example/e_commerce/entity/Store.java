@@ -50,10 +50,10 @@ public class Store {
     @Column
     private String banner;
 
-    @Column
+    @Column(nullable = false)
     private String phone;
 
-    @Column
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)

@@ -4,6 +4,7 @@ import com.example.e_commerce.dto.response.ErrorRes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -21,8 +22,8 @@ public class GlobalException {
                 ));
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorRes> handleForbidden(ForbiddenException ex) {
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorRes> handleForbidden(AuthorizationDeniedException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(new ErrorRes(
                         "FORBIDDEN",
@@ -79,10 +80,12 @@ public class GlobalException {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorRes> handleGeneralException(Exception ex) {
+        ex.printStackTrace();   // hoặc log.error("", ex);
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorRes(
-                        "INTERNAL_SERVER_ERROR",
-                        "An unexpected error occurred",
+                        ex.getClass().getName(),
+                        ex.getMessage(),
                         null
                 ));
     }

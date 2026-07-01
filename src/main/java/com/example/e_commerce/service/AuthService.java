@@ -9,6 +9,9 @@ import com.example.e_commerce.entity.Role;
 import com.example.e_commerce.entity.Session;
 import com.example.e_commerce.entity.User;
 import com.example.e_commerce.entity.UserRole;
+import com.example.e_commerce.exception.ForbiddenException;
+import com.example.e_commerce.exception.ResourceNotFoundException;
+import com.example.e_commerce.exception.UnauthorizedException;
 import com.example.e_commerce.repository.RoleRepository;
 import com.example.e_commerce.repository.SessionRepository;
 import com.example.e_commerce.repository.UserRepository;
@@ -33,21 +36,20 @@ public class AuthService {
     private final JwtService jwtService;
     private final UploadService uploadService;
 
+    @Transactional
     public LoginRes login(LoginReq req) {
 
         User existingUser = userRepo.findByEmail(req.getEmail());
 
         if (existingUser == null ||
                 !passwordEncoder.matches(req.getPassword(), existingUser.getPassword())) {
-            throw new UsernameNotFoundException("Invalid email or password!");
+            throw new UnauthorizedException("Invalid email or password!");
         }
 
         Session session = new Session();
         session.setUser(existingUser);
         session.setRevoked(false);
         session.setExpiresAt(jwtService.getRefreshTokenExpiry());
-
-        session = sessionRepo.save(session);
 
         String refreshToken = jwtService.generateRefreshToken();
 
@@ -65,7 +67,7 @@ public class AuthService {
         Long sessionId = jwtService.extractSessionId(accessToken);
 
         Session session = sessionRepo.findById(sessionId)
-                .orElseThrow(() -> new UsernameNotFoundException("Invalid token!"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid token!"));
 
         session.setRevoked(true);
 
@@ -74,14 +76,14 @@ public class AuthService {
 
     public String refreshToken(String refreshToken) {
         Session session = sessionRepo.findByToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(() -> new UnauthorizedException("Invalid refresh token"));
 
         if (session.getRevoked()) {
-            throw new RuntimeException("Session revoked");
+            throw new UnauthorizedException("Session revoked");
         }
 
         if (session.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Session expired");
+            throw new UnauthorizedException("Session expired");
         }
 
         return jwtService.generateAccessToken(session);
@@ -89,7 +91,7 @@ public class AuthService {
 
     public void register(RegisterReq req) {
         if (userRepo.existsByEmail(req.getEmail())) {
-            throw new RuntimeException("This email is already used!");
+            throw new ResourceNotFoundException("This email is already used!");
         }
         User user = new User();
         user.setEmail(req.getEmail());
@@ -103,7 +105,7 @@ public class AuthService {
         userRepo.save(user);
 
         Role customerRole = roleRepo.findByRoleName(RoleType.CUSTOMER)
-                .orElseThrow(() -> new RuntimeException("Customer role not found"));
+                .orElseThrow(() -> new ForbiddenException("Customer role not found"));
         UserRole userRole = new UserRole();
         userRole.setUser(user);
         userRole.setRole(customerRole);
@@ -122,7 +124,7 @@ public class AuthService {
             user.setName(req.getName());
             userRepo.save(user);
             Role customerRole = roleRepo.findByRoleName(RoleType.CUSTOMER)
-                    .orElseThrow(() -> new RuntimeException("Customer role not found"));
+                    .orElseThrow(() -> new ForbiddenException("Customer role not found"));
             UserRole userRole = new UserRole();
             userRole.setUser(user);
             userRole.setRole(customerRole);

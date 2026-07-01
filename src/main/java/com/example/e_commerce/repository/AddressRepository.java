@@ -22,7 +22,7 @@ public interface AddressRepository extends JpaRepository<Address,Long> {
         WHERE a.user.id = :userId
         AND a.deletedAt IS NULL
         ORDER BY a.createdAt DESC
-        """)
+    """)
     Page<Address> findByUserId(UUID userId, Pageable pageable);
 
     @Query("""
