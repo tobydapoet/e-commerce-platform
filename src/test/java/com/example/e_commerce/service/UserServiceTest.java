@@ -107,7 +107,7 @@ class UserServiceTest {
 
             userService.updateUser(userId, req);
 
-            assertEquals("John Doe", user.getName());
+            assertEquals("Nguyen Tung", user.getName());
             verify(userRepo).save(user);
         }
 
