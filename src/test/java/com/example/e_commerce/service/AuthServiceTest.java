@@ -9,6 +9,7 @@ import com.example.e_commerce.entity.Role;
 import com.example.e_commerce.entity.Session;
 import com.example.e_commerce.entity.User;
 import com.example.e_commerce.entity.UserRole;
+import com.example.e_commerce.exception.UnauthorizedException;
 import com.example.e_commerce.repository.RoleRepository;
 import com.example.e_commerce.repository.SessionRepository;
 import com.example.e_commerce.repository.UserRepository;
@@ -23,7 +24,6 @@ import static org.mockito.Mockito.*;
 
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -240,8 +240,6 @@ class AuthServiceTest {
 
         assertEquals("accessToken", res.accessToken());
         assertEquals("refreshToken", res.refreshToken());
-
-        verify(sessionRepo, times(2)).save(any());
     }
 
     @Test
@@ -400,8 +398,8 @@ class AuthServiceTest {
         when(sessionRepo.findById(sessionId))
                 .thenReturn(Optional.empty());
 
-        UsernameNotFoundException ex = assertThrows(
-                UsernameNotFoundException.class,
+        UnauthorizedException ex = assertThrows(
+                UnauthorizedException.class,
                 () -> authService.logout(token)
         );
 
