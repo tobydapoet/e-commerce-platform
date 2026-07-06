@@ -4,7 +4,7 @@ spring:
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3308/e_sql}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:123}
+    password: ${DB_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximum-pool-size: 10
@@ -65,7 +65,7 @@ spring:
     api_secret: ${API_SECRET:}
 
 jwt:
-  secret: ${JWT_SECRET:5ba957e030e819566ab19fd0a9d4ba95188fa39efd4fa47b0926f92901607c26}
+  secret: ${JWT_SECRET}
 
 server:
   port: 8080

@@ -99,7 +99,9 @@ jobs:
             -Dsonar.projectKey=tobydapoet_e-commerce-platform \
             -Dsonar.organization=tobydapoet \
             -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.exclusions="src/test/**,target/**" \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.coverage.exclusions="**/config/**,**/constant/**,**/controller/**,**/dto/**,**/entity/**,**/exception/**,**/filter/**,**/handler/**,**/mapper/**/*Impl.java,**/repository/**,**/ECommerceApplication.java" \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
   deploy:
