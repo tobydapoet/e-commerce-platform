@@ -59,20 +59,20 @@ public class User {
     @ToString.Exclude
     private Set<Session> sessions = new HashSet<>();
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Set<Store> stores = new HashSet<>();
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Set<CartItem> items = new HashSet<>();
+    private Set<CartStore> cartsStore = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Order> orders = new HashSet<>();
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Store> Store = new HashSet<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude

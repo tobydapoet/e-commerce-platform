@@ -10,6 +10,7 @@ import com.example.e_commerce.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("User Service tests")
 class UserServiceTest {
 
     @Mock
@@ -55,8 +57,9 @@ class UserServiceTest {
     }
 
     @Nested
+    @DisplayName("Find By ID")
     class FindByIdTests {
-
+        @DisplayName("Find by ID should return user when exists")
         @Test
         void findById_shouldReturnUser_whenExists() {
             when(userRepo.findById(userId)).thenReturn(Optional.of(user));
@@ -65,7 +68,7 @@ class UserServiceTest {
 
             assertEquals(user, result);
         }
-
+        @DisplayName("Find by ID should throw when not found")
         @Test
         void findById_shouldThrow_whenNotFound() {
             when(userRepo.findById(userId)).thenReturn(Optional.empty());
@@ -75,8 +78,9 @@ class UserServiceTest {
     }
 
     @Nested
+    @DisplayName("Update User")
     class UpdateUserTests {
-
+        @DisplayName("Update user should throw when user not found")
         @Test
         void updateUser_shouldThrow_whenUserNotFound() {
             when(userRepo.findById(userId)).thenReturn(Optional.empty());
@@ -84,7 +88,7 @@ class UserServiceTest {
             assertThrows(RuntimeException.class,
                     () -> userService.updateUser(userId, new UpdateUserReq()));
         }
-
+        @DisplayName("Update user should update name when provided")
         @Test
         void updateUser_shouldUpdateName_whenProvided() {
             UpdateUserReq req = new UpdateUserReq();
@@ -97,7 +101,7 @@ class UserServiceTest {
             assertEquals("New Name", user.getName());
             verify(userRepo).save(user);
         }
-
+        @DisplayName("Update user should not change name when name is null")
         @Test
         void updateUser_shouldNotChangeName_whenNameIsNull() {
             UpdateUserReq req = new UpdateUserReq();
@@ -110,7 +114,7 @@ class UserServiceTest {
             assertEquals("Nguyen Tung", user.getName());
             verify(userRepo).save(user);
         }
-
+        @DisplayName("Update user should upload new avatar when old avatar is null")
         @Test
         void updateUser_shouldUploadNewAvatar_whenOldAvatarIsNull() {
             UpdateUserReq req = new UpdateUserReq();
@@ -127,7 +131,7 @@ class UserServiceTest {
             assertEquals("new-avatar-url", user.getAvatar());
             verify(userRepo).save(user);
         }
-
+        @DisplayName("Update user should delete old avatar before uploading new")
         @Test
         void updateUser_shouldDeleteOldAvatar_beforeUploadingNew() {
             user.setAvatar("old-avatar-url");
@@ -144,7 +148,7 @@ class UserServiceTest {
             verify(uploadService).upload(avatarFile, "user");
             assertEquals("new-avatar-url", user.getAvatar());
         }
-
+        @DisplayName("Update user should not touch avatar when avatar is null")
         @Test
         void updateUser_shouldNotTouchAvatar_whenAvatarIsNull() {
             user.setAvatar("existing-avatar-url");
@@ -162,8 +166,9 @@ class UserServiceTest {
     }
 
     @Nested
+    @DisplayName("Update User Status")
     class UpdateUserStatusTests {
-
+        @DisplayName("Update user status should throw when user not found")
         @Test
         void updateUserStatus_shouldThrow_whenUserNotFound() {
             when(userRepo.findById(userId)).thenReturn(Optional.empty());
@@ -171,7 +176,7 @@ class UserServiceTest {
             assertThrows(RuntimeException.class,
                     () -> userService.updateUserStatus(userId, UserStatus.BLOCKED));
         }
-
+        @DisplayName("Update user status should update and save when status is different")
         @Test
         void updateUserStatus_shouldUpdateAndSave_whenStatusIsDifferent() {
             when(userRepo.findById(userId)).thenReturn(Optional.of(user));
@@ -181,7 +186,7 @@ class UserServiceTest {
             assertEquals(UserStatus.BLOCKED, user.getStatus());
             verify(userRepo).save(user);
         }
-
+        @DisplayName("Update user status should not save when status is same")
         @Test
         void updateUserStatus_shouldNotSave_whenStatusIsSame() {
             when(userRepo.findById(userId)).thenReturn(Optional.of(user));
@@ -193,8 +198,9 @@ class UserServiceTest {
     }
 
     @Nested
+    @DisplayName("Search")
     class SearchTests {
-
+        @DisplayName("Search should use active status when status is null")
         @Test
         void search_shouldUseActiveStatus_whenStatusIsNull() {
             Pageable pageable = mock(Pageable.class);
@@ -211,7 +217,7 @@ class UserServiceTest {
             assertEquals(res, result.getContent().get(0));
             verify(userRepo).search("tung", RoleType.CUSTOMER, UserStatus.ACTIVE, pageable);
         }
-
+        @DisplayName("Search should use provided status when not null")
         @Test
         void search_shouldUseProvidedStatus_whenNotNull() {
             Pageable pageable = mock(Pageable.class);
@@ -227,7 +233,7 @@ class UserServiceTest {
             assertEquals(1, result.getTotalElements());
             verify(userRepo).search("tung", RoleType.ADMIN, UserStatus.BLOCKED, pageable);
         }
-
+        @DisplayName("Search should return empty page when no results")
         @Test
         void search_shouldReturnEmptyPage_whenNoResults() {
             Pageable pageable = mock(Pageable.class);
@@ -242,8 +248,9 @@ class UserServiceTest {
     }
 
     @Nested
+    @DisplayName("Customer Search")
     class CustomerSearchTests {
-
+        @DisplayName("Customer search should always use customer role and active status")
         @Test
         void customerSearch_shouldAlwaysUseCustomerRole_andActiveStatus() {
             Pageable pageable = mock(Pageable.class);

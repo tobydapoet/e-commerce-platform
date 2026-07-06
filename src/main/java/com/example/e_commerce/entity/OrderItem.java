@@ -1,9 +1,10 @@
 package com.example.e_commerce.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.HashSet;
 
 @Entity
 @Table(name = "order_items")
@@ -14,10 +15,10 @@ public class OrderItem {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_store_id", nullable = false)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Order order;
+    private OrderStore orderStore;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "product_variant_id", nullable = false)
@@ -25,12 +26,21 @@ public class OrderItem {
     @ToString.Exclude
     private ProductVariant productVariant;
 
+    @OneToOne(
+            mappedBy = "orderItem",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Review review;
+
     @Column(nullable = false)
     private Integer quantity;
 
-    @Column(nullable = false)
-    private Long price;
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal price = BigDecimal.ZERO;
 
-    @Column(nullable = false)
-    private Long subtotal;
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal subtotal = BigDecimal.ZERO;
 }

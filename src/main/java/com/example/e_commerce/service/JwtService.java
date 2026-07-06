@@ -1,5 +1,6 @@
 package com.example.e_commerce.service;
 
+import com.example.e_commerce.constant.PermissionName;
 import com.example.e_commerce.constant.RoleType;
 import com.example.e_commerce.entity.Role;
 import com.example.e_commerce.entity.Session;
@@ -44,16 +45,30 @@ public class JwtService {
                 .map(userRole -> userRole.getRole().getRoleName())
                 .toList();
 
+        List<PermissionName> permissions = session.getUser()
+                .getUserRoles()
+                .stream()
+                .flatMap(userRole ->
+                        userRole.getRole()
+                                .getRolePermissions()
+                                .stream()
+                )
+                .map(rolePermission ->
+                        rolePermission.getPermission().getName()
+                )
+                .distinct()
+                .toList();
+
         return Jwts.builder()
                 .setSubject(session.getId().toString())
                 .claim("roles", roles)
+                .claim("permissions", permissions)
                 .claim("userId", session.getUser().getId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidity))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     public String generateRefreshToken() {
         byte[] bytes = new byte[64];

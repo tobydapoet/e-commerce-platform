@@ -1,0 +1,13 @@
+package com.example.e_commerce.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import lombok.Data;
+
+@Data
+public class OtpReq {
+
+    @NotBlank(message = "New phone number is required")
+    @Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "Invalid phone number format")
+    private String newPhone;
+}

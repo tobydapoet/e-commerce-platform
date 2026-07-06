@@ -2,7 +2,7 @@ package com.example.e_commerce.controller;
 
 import com.example.e_commerce.constant.StoreStatus;
 import com.example.e_commerce.dto.request.CreateStoreReq;
-import com.example.e_commerce.dto.request.RequestOtp;
+import com.example.e_commerce.dto.request.OtpReq;
 import com.example.e_commerce.dto.request.UpdateStoreReq;
 import com.example.e_commerce.dto.request.VerifyOtpReq;
 import com.example.e_commerce.dto.response.MessageRes;
@@ -32,6 +32,7 @@ public class StoreController {
     private final StoreService storeService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('STORE_CREATE')")
     public ResponseEntity<MessageRes> create(
             @Valid @ModelAttribute CreateStoreReq req,
             @AuthenticationPrincipal User currentUser
@@ -63,7 +64,7 @@ public class StoreController {
     @PostMapping("/{storeId}/phone/request-otp")
     public ResponseEntity<MessageRes> requestPhoneOtp(
             @PathVariable Long storeId,
-            @Valid @RequestBody RequestOtp req,
+            @Valid @RequestBody OtpReq req,
             @AuthenticationPrincipal User currentUser
     ) {
         if (currentUser == null) {

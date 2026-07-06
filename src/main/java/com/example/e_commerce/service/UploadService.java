@@ -6,12 +6,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Service
 public class UploadService {
 
     private final Cloudinary cloudinary;
+
+    private final ExecutorService uploadExecutor = Executors.newFixedThreadPool(8);
 
     public UploadService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
@@ -19,11 +26,28 @@ public class UploadService {
 
     public String upload(MultipartFile file, String folder) {
         try {
-            Map upLoadRes = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("folder", folder, "public_id", file.getOriginalFilename()));
-            return upLoadRes.get("secure_url").toString();
+            String publicId = UUID.randomUUID().toString();
+            Map uploadRes = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap("folder", folder, "public_id", publicId)
+            );
+            return uploadRes.get("secure_url").toString();
         } catch (IOException e) {
             throw new RuntimeException("Upload failed", e);
         }
+    }
+
+    public List<String> uploadMultiple(List<MultipartFile> files, String folder) {
+        List<CompletableFuture<String>> tasks = files.stream()
+                .map(file -> CompletableFuture.supplyAsync(
+                        () -> upload(file, folder),
+                        uploadExecutor
+                ))
+                .toList();
+
+        return tasks.stream()
+                .map(CompletableFuture::join)
+                .toList();
     }
 
     public void delete(String url) {
@@ -48,5 +72,13 @@ public class UploadService {
         } catch (IOException e) {
             throw new RuntimeException("Delete file error", e);
         }
+    }
+
+    public void deleteMultiple(List<String> urls) {
+        List<CompletableFuture<Void>> tasks = urls.stream()
+                .map(url -> CompletableFuture.runAsync(() -> delete(url), uploadExecutor))
+                .toList();
+
+        CompletableFuture.allOf(tasks.toArray(new CompletableFuture[0])).join();
     }
 }

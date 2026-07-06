@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -25,20 +26,13 @@ public class ProductVariant {
     @Column(nullable = false, unique = true)
     private String sku;
 
-    @Column(length = 50)
-    private String color;
-
-    @Column(length = 50)
-    private String size;
-
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private Boolean active = false;
 
-    @Column(nullable = false)
-    private Boolean active = true;
+    private String image;
 
     @OneToMany(mappedBy = "productVariant")
     @EqualsAndHashCode.Exclude
@@ -58,4 +52,9 @@ public class ProductVariant {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Inventory inventory;
+
+    @OneToMany(mappedBy = "productVariant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<ProductVariantAttributeValue> variantAttributeValues = new HashSet<>();
 }

@@ -29,6 +29,15 @@ public interface AddressRepository extends JpaRepository<Address,Long> {
         SELECT a
         FROM Address a
         WHERE a.user.id = :userId
+        AND a.isDefault = true
+        AND a.deletedAt IS NULL
+    """)
+    List<Address> findDefaultByUserId(UUID userId);
+
+    @Query("""
+        SELECT a
+        FROM Address a
+        WHERE a.user.id = :userId
           AND a.deletedAt IS NULL
     """)
     List<Address> findByUserIdWithoutPaging(@Param("userId") UUID userId);

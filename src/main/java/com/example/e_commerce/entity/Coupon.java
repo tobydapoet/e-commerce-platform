@@ -10,6 +10,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -33,13 +34,13 @@ public class Coupon {
     private DiscountType discountType;
 
     @Column(nullable = false, name = "discount_value")
-    private Double discountValue;
+    private BigDecimal discountValue;
 
     @Column(name = "minimum_order")
-    private Integer minimumOrder;
+    private BigDecimal minimumOrder;
 
     @Column(name = "maximum_discount")
-    private Integer maximumDiscount;
+    private BigDecimal maximumDiscount;
 
     @Column
     private Long quantity;
@@ -52,7 +53,13 @@ public class Coupon {
 
     @Column()
     @Enumerated(EnumType.STRING)
-    private CouponStatus status;
+    private CouponStatus status = CouponStatus.INACTIVE;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Store store;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false)
@@ -62,8 +69,18 @@ public class Coupon {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "coupon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "platformCoupon", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Order> orders = new HashSet<>();
+
+    @OneToMany(mappedBy = "storeCoupon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<OrderStore> orderStores = new HashSet<>();
+
+    @OneToMany(mappedBy = "storeCoupon", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<CartStore> cartStores = new HashSet<>();
 }

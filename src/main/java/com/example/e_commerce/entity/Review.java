@@ -25,6 +25,13 @@ public class Review {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_item_id", nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private OrderItem orderItem;
+    
+
     @Column(nullable = false)
     private Integer rating;
 

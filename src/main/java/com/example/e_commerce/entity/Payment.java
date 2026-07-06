@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +35,9 @@ public class Payment {
 
     @Column(unique = true)
     private String transactionCode;
+
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal amount = BigDecimal.ZERO;
 
     @Column
     private LocalDateTime paidAt;

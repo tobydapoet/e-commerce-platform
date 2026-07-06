@@ -18,7 +18,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,12 +39,6 @@ public class Product {
     @Column(nullable = false)
     private String thumbnail;
 
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal minPrice;
-
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal maxPrice;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status = ProductStatus.DRAFT;
@@ -54,12 +47,14 @@ public class Product {
     private Set<ProductVariant> variants = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProductImage> images = new HashSet<>();
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<Wishlist> wishlists = new HashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Set<Wishlist> wishlists = new HashSet<>();
+    private Set<Attribute> attributes = new HashSet<>();
 
     @OneToMany(mappedBy = "product")
     private Set<Review> reviews = new HashSet<>();

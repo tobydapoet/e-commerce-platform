@@ -27,22 +27,25 @@ public class AddressService {
 
     @Transactional
     public Address create(CreateAddressReq req, User currentUser) {
+        addressRepo.clearDefaultAddress(currentUser.getId());
+
         Address address = new Address();
         address.setAddress(req.getAddress());
         address.setName(req.getName());
         address.setPhone(req.getPhone());
         address.setUser(currentUser);
-
-        addressRepo.clearDefaultAddress(currentUser.getId());
-
         address.setIsDefault(true);
 
         return addressRepo.save(address);
     }
 
-    public void delete(UUID userId, Long id) {
-        Address address = addressRepo.findById(id)
+    public Address findById(Long id) {
+        return addressRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+    }
+
+    public void delete(UUID userId, Long id) {
+        Address address = findById(id);
         if (!address.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You don't have permission to delete this address");
         }
@@ -50,8 +53,7 @@ public class AddressService {
     }
 
     public void update(UUID userId, Long id, UpdateAddressReq req) {
-        Address address = addressRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
+        Address address = findById(id);
         if (!address.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You don't have permission to update this address");
         }
@@ -78,9 +80,7 @@ public class AddressService {
     }
 
     public AddressRes getById(UUID userId, Long id) {
-        Address address = addressRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
-
+        Address address = findById(id);
         if (!address.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You don't have permission to view this address");
         }
@@ -89,13 +89,12 @@ public class AddressService {
     }
 
     public void updateDefault(User currentUser, Long id) {
-        Address address = addressRepo.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Address not found"));
-
+        Address address = findById(id);
         if (!address.getUser().getId().equals(currentUser.getId())) {
             throw new ForbiddenException("You don't have permission to view this address");
         }
         addressRepo.clearDefaultAddress(currentUser.getId());
         address.setIsDefault(true);
+        addressRepo.save(address);
     }
 }

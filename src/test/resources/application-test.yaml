@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:ecommerce_test;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    show-sql: false
+  data:
+    redis:
+      repositories:
+        enabled: false
+  cloudinary:
+    cloud_name: test-cloud
+    api_key: test-key
+    api_secret: test-secret
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+
+jwt:
+  secret: 5ba957e030e819566ab19fd0a9d4ba95188fa39efd4fa47b0926f92901607c26

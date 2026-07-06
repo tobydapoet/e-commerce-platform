@@ -1,6 +1,5 @@
 package com.example.e_commerce.entity;
 
-import com.example.e_commerce.constant.OrderStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -8,6 +7,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,29 +36,19 @@ public class Order {
     private Address address;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coupon_id")
+    @JoinColumn(name = "platform_coupon_id")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Coupon coupon;
+    private Coupon platformCoupon;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private OrderStatus status;
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal subtotal = BigDecimal.ZERO;
 
-    @Column(nullable = false)
-    private Long subtotal = 0L;
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal discount = BigDecimal.ZERO;
 
-    @Column(nullable = false)
-    private Long discount = 0L;
-
-    @Column(length = 500)
-    private String note;
-
-    @Column(nullable = false, name = "shipping_fee")
-    private Long shippingFee = 0L;
-
-    @Column(nullable = false)
-    private Long total = 0L;
+    @Column(nullable = false, precision = 18, scale = 2)
+    private BigDecimal total = BigDecimal.ZERO;
 
     @CreationTimestamp
     @Column(nullable = false, name = "created_at")
@@ -73,9 +63,7 @@ public class Order {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Set<OrderItem> orderItems = new HashSet<>();
+    private Set<OrderStore> orderStores = new HashSet<>();
 
     @OneToOne(
             mappedBy = "order",

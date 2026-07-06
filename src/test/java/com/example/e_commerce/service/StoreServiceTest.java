@@ -7,6 +7,7 @@ import com.example.e_commerce.dto.request.UpdateStoreReq;
 import com.example.e_commerce.dto.response.StoreRes;
 import com.example.e_commerce.entity.Store;
 import com.example.e_commerce.entity.User;
+import com.example.e_commerce.exception.BadRequestException;
 import com.example.e_commerce.exception.ResourceNotFoundException;
 import com.example.e_commerce.exception.UnauthorizedException;
 import com.example.e_commerce.mapper.StoreMapper;
@@ -14,6 +15,7 @@ import com.example.e_commerce.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -34,6 +36,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("Store Service tests")
 class StoreServiceTest {
 
     @Mock
@@ -73,8 +76,9 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Create")
     class CreateTests {
-
+        @DisplayName("Create should save store and update role to seller when successful")
         @Test
         void create_shouldSaveStore_andUpdateRoleToSeller_whenSuccessful() {
             CreateStoreReq req = new CreateStoreReq();
@@ -90,7 +94,7 @@ class StoreServiceTest {
             verify(storeRepo).save(any(Store.class));
             verify(userRoleService).updateUserRole(currentUser.getId(), RoleType.SELLER);
         }
-
+        @DisplayName("Create should use current user email when req email is null")
         @Test
         void create_shouldUseCurrentUserEmail_whenReqEmailIsNull() {
             CreateStoreReq req = new CreateStoreReq();
@@ -104,7 +108,7 @@ class StoreServiceTest {
 
             assertEquals(currentUser.getEmail(), result.getEmail());
         }
-
+        @DisplayName("Create should upload logo and banner when provided")
         @Test
         void create_shouldUploadLogoAndBanner_whenProvided() {
             CreateStoreReq req = new CreateStoreReq();
@@ -122,7 +126,7 @@ class StoreServiceTest {
             assertEquals("logo-url", result.getLogo());
             assertEquals("banner-url", result.getBanner());
         }
-
+        @DisplayName("Create should not update role when save fails")
         @Test
         void create_shouldNotUpdateRole_whenSaveFails() {
             CreateStoreReq req = new CreateStoreReq();
@@ -138,8 +142,9 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Update")
     class UpdateTests {
-
+        @DisplayName("Update should throw when store not found")
         @Test
         void update_shouldThrow_whenStoreNotFound() {
             when(storeRepo.findById(1L)).thenReturn(Optional.empty());
@@ -147,7 +152,7 @@ class StoreServiceTest {
             assertThrows(ResourceNotFoundException.class,
                     () -> storeService.update(1L, new UpdateStoreReq(), currentUser));
         }
-
+        @DisplayName("Update should throw unauthorized when current user is not owner")
         @Test
         void update_shouldThrowUnauthorized_whenCurrentUserIsNotOwner() {
             User anotherUser = new User();
@@ -157,7 +162,7 @@ class StoreServiceTest {
             assertThrows(UnauthorizedException.class,
                     () -> storeService.update(1L, new UpdateStoreReq(), anotherUser));
         }
-
+        @DisplayName("Update should delete old logo when new logo provided")
         @Test
         void update_shouldDeleteOldLogo_whenNewLogoProvided() {
             store.setLogo("old-logo-url");
@@ -173,7 +178,7 @@ class StoreServiceTest {
             verify(storeRepo).save(store);
             assertEquals("new-logo-url", store.getLogo());
         }
-
+        @DisplayName("Update should update description when provided")
         @Test
         void update_shouldUpdateDescription_whenProvided() {
             UpdateStoreReq req = new UpdateStoreReq();
@@ -189,8 +194,9 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Request Phone Update OTP")
     class RequestPhoneUpdateOtpTests {
-
+        @DisplayName("Request OTP should throw when store not found")
         @Test
         void requestOtp_shouldThrow_whenStoreNotFound() {
             when(storeRepo.findById(1L)).thenReturn(Optional.empty());
@@ -198,7 +204,7 @@ class StoreServiceTest {
             assertThrows(ResourceNotFoundException.class,
                     () -> storeService.requestPhoneUpdateOtp(1L, "0999999999", currentUser));
         }
-
+        @DisplayName("Request OTP should throw unauthorized when not owner")
         @Test
         void requestOtp_shouldThrowUnauthorized_whenNotOwner() {
             User anotherUser = new User();
@@ -208,16 +214,16 @@ class StoreServiceTest {
             assertThrows(UnauthorizedException.class,
                     () -> storeService.requestPhoneUpdateOtp(1L, "0999999999", anotherUser));
         }
-
+        @DisplayName("Request OTP should throw when cooldown active")
         @Test
         void requestOtp_shouldThrow_whenCooldownActive() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
             when(redisTemplate.hasKey("otp:store-phone:cooldown:1")).thenReturn(true);
 
-            assertThrows(IllegalStateException.class,
+            assertThrows(BadRequestException.class,
                     () -> storeService.requestPhoneUpdateOtp(1L, "0999999999", currentUser));
         }
-
+        @DisplayName("Request OTP should send mail and save OTP to redis when successful")
         @Test
         void requestOtp_shouldSendMail_andSaveOtpToRedis_whenSuccessful() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
@@ -241,18 +247,19 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Verify And Update Phone")
     class VerifyAndUpdatePhoneTests {
-
+        @DisplayName("Verify should throw when OTP not requested")
         @Test
         void verify_shouldThrow_whenOtpNotRequested() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
             when(redisTemplate.opsForValue()).thenReturn(valueOperations);
             when(valueOperations.get("otp:store-phone:1")).thenReturn(null);
 
-            assertThrows(IllegalStateException.class,
+            assertThrows(BadRequestException.class,
                     () -> storeService.verifyAndUpdatePhone(1L, "123456", currentUser));
         }
-
+        @DisplayName("Verify should throw when OTP invalid")
         @Test
         void verify_shouldThrow_whenOtpInvalid() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
@@ -261,10 +268,10 @@ class StoreServiceTest {
             when(valueOperations.get("otp:store-phone:pending:1")).thenReturn("0999999999");
             when(redisTemplate.opsForValue().increment("otp:store-phone:attempts:1")).thenReturn(1L);
 
-            assertThrows(IllegalArgumentException.class,
+            assertThrows(BadRequestException.class,
                     () -> storeService.verifyAndUpdatePhone(1L, "222222", currentUser));
         }
-
+        @DisplayName("Verify should throw when too many attempts")
         @Test
         void verify_shouldThrow_whenTooManyAttempts() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
@@ -273,13 +280,13 @@ class StoreServiceTest {
             when(valueOperations.get("otp:store-phone:pending:1")).thenReturn("0999999999");
             when(valueOperations.increment("otp:store-phone:attempts:1")).thenReturn(6L);
 
-            assertThrows(IllegalStateException.class,
+            assertThrows(BadRequestException.class,
                     () -> storeService.verifyAndUpdatePhone(1L, "111111", currentUser));
 
             verify(redisTemplate).delete("otp:store-phone:1");
             verify(redisTemplate).delete("otp:store-phone:pending:1");
         }
-
+        @DisplayName("Verify should update phone and clear redis keys when OTP correct")
         @Test
         void verify_shouldUpdatePhone_andClearRedisKeys_whenOtpCorrect() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
@@ -299,8 +306,9 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Update Status")
     class UpdateStatusTests {
-
+        @DisplayName("Update status should throw when store not found")
         @Test
         void updateStatus_shouldThrow_whenStoreNotFound() {
             when(storeRepo.findById(1L)).thenReturn(Optional.empty());
@@ -308,7 +316,7 @@ class StoreServiceTest {
             assertThrows(ResourceNotFoundException.class,
                     () -> storeService.updateStatus(1L, StoreStatus.INACTIVE));
         }
-
+        @DisplayName("Update status should update and save")
         @Test
         void updateStatus_shouldUpdateAndSave() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
@@ -321,8 +329,9 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Search")
     class SearchTests {
-
+        @DisplayName("Search should return mapped page")
         @Test
         void search_shouldReturnMappedPage() {
             Pageable pageable = mock(Pageable.class);
@@ -340,8 +349,9 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Get My Stores")
     class GetMyStoresTests {
-
+        @DisplayName("Get my stores should throw when empty")
         @Test
         void getMyStores_shouldThrow_whenEmpty() {
             when(storeRepo.findByOwnerId(currentUser.getId())).thenReturn(List.of());
@@ -349,7 +359,7 @@ class StoreServiceTest {
             assertThrows(ResourceNotFoundException.class,
                     () -> storeService.getMyStores(currentUser));
         }
-
+        @DisplayName("Get my stores should return mapped list when not empty")
         @Test
         void getMyStores_shouldReturnMappedList_whenNotEmpty() {
             StoreRes storeRes = mock(StoreRes.class);
@@ -364,8 +374,9 @@ class StoreServiceTest {
     }
 
     @Nested
+    @DisplayName("Deactivate")
     class DeactivateTests {
-
+        @DisplayName("Deactivate should throw when store not found")
         @Test
         void deactivate_shouldThrow_whenStoreNotFound() {
             when(storeRepo.findById(1L)).thenReturn(Optional.empty());
@@ -373,7 +384,7 @@ class StoreServiceTest {
             assertThrows(ResourceNotFoundException.class,
                     () -> storeService.deactivate(1L, currentUser));
         }
-
+        @DisplayName("Deactivate should throw unauthorized when not owner")
         @Test
         void deactivate_shouldThrowUnauthorized_whenNotOwner() {
             User anotherUser = new User();
@@ -383,7 +394,7 @@ class StoreServiceTest {
             assertThrows(UnauthorizedException.class,
                     () -> storeService.deactivate(1L, anotherUser));
         }
-
+        @DisplayName("Deactivate should set status inactive and save")
         @Test
         void deactivate_shouldSetStatusInactive_andSave() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));

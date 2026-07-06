@@ -32,6 +32,26 @@ public class GlobalException {
                 ));
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ErrorRes> handleForbidden(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(new ErrorRes(
+                        "FORBIDDEN",
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorRes> handleBadRequest(BadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorRes(
+                        "BAD_REQUEST",
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorRes> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -80,7 +100,6 @@ public class GlobalException {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorRes> handleGeneralException(Exception ex) {
-        ex.printStackTrace();   // hoặc log.error("", ex);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorRes(
@@ -89,4 +108,25 @@ public class GlobalException {
                         null
                 ));
     }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorRes> handleDuplicateResource(DuplicateResourceException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorRes(
+                        "DUPLICATE_RESOURCE",
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
+    @ExceptionHandler(ResourceInUseException.class)
+    public ResponseEntity<ErrorRes> handleResourceInUse(ResourceInUseException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorRes(
+                        "RESOURCE_IN_USE",
+                        ex.getMessage(),
+                        null
+                ));
+    }
+
 }

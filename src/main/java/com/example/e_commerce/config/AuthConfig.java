@@ -33,6 +33,7 @@ public class AuthConfig {
                                 "/oauth2/**",
                                 "/login/**",
                                 "/google/**",
+                                "/webhooks/**",
                                 "/error",
                                 "/test/**"
                         )

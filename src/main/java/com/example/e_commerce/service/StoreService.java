@@ -7,6 +7,7 @@ import com.example.e_commerce.dto.request.UpdateStoreReq;
 import com.example.e_commerce.dto.response.StoreRes;
 import com.example.e_commerce.entity.Store;
 import com.example.e_commerce.entity.User;
+import com.example.e_commerce.exception.BadRequestException;
 import com.example.e_commerce.exception.ResourceNotFoundException;
 import com.example.e_commerce.exception.UnauthorizedException;
 import com.example.e_commerce.mapper.StoreMapper;
@@ -69,9 +70,13 @@ public class StoreService {
         return savedStore;
     }
 
+    public Store findById(Long storeId) {
+        return storeRepo.findById(storeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Store not found."));
+    }
+
     public void update(Long storeId,UpdateStoreReq req, User currentUser) {
-        Store store = storeRepo.findById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Store not found!"));
+        Store store = findById(storeId);
         if (!store.getOwner().getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("You don't have permission to update this store!");
         }
@@ -99,8 +104,7 @@ public class StoreService {
     }
 
     public void requestPhoneUpdateOtp(Long storeId, String newPhone, User currentUser) {
-        Store store = storeRepo.findById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Store not found!"));
+        Store store = findById(storeId);
 
         if (!store.getOwner().getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("You don't have permission to update this store!");
@@ -108,7 +112,7 @@ public class StoreService {
 
         String cooldownKey = "otp:store-phone:cooldown:" + storeId;
         if (Boolean.TRUE.equals(redisTemplate.hasKey(cooldownKey))) {
-            throw new IllegalStateException("Please wait before requesting another OTP");
+            throw new BadRequestException("Please wait before requesting another OTP");
         }
 
         String otp = OtpUtil.generateOtp();
@@ -127,9 +131,7 @@ public class StoreService {
 
     @Transactional
     public Store verifyAndUpdatePhone(Long storeId, String otpInput, User currentUser) {
-        Store store = storeRepo.findById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Store not found!"));
-
+        Store store = findById(storeId);
         if (!store.getOwner().getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("You don't have permission to update this store!");
         }
@@ -142,7 +144,7 @@ public class StoreService {
         String pendingPhone = redisTemplate.opsForValue().get(pendingKey);
 
         if (storedOtp == null || pendingPhone == null) {
-            throw new IllegalStateException("OTP expired or not requested. Please request a new one.");
+            throw new BadRequestException("OTP expired or not requested. Please request a new one.");
         }
 
         Long attempts = redisTemplate.opsForValue().increment(attemptsKey);
@@ -152,11 +154,11 @@ public class StoreService {
         if (attempts != null && attempts > MAX_VERIFY_ATTEMPTS) {
             redisTemplate.delete(otpKey);
             redisTemplate.delete(pendingKey);
-            throw new IllegalStateException("Too many failed attempts. Please request a new OTP.");
+            throw new BadRequestException("Too many failed attempts. Please request a new OTP.");
         }
 
         if (!storedOtp.equals(otpInput)) {
-            throw new IllegalArgumentException("Invalid OTP");
+            throw new BadRequestException("Invalid OTP");
         }
 
         store.setPhone(pendingPhone);
@@ -170,8 +172,7 @@ public class StoreService {
     }
 
     public void updateStatus(Long storeId, StoreStatus status) {
-        Store store = storeRepo.findById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Store not found!"));
+        Store store = findById(storeId);
         store.setStatus(status);
         storeRepo.save(store);
     }
@@ -189,8 +190,7 @@ public class StoreService {
     }
 
     public void deactivate(Long storeId, User currentUser) {
-        Store store = storeRepo.findById(storeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Store not found!"));
+        Store store = findById(storeId);
         if (!store.getOwner().getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("You don't have permission to deactivate this store!");
         }

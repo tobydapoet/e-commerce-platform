@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class UploadConfig {
-    @Value("${CLOUD_NAME}")
+    @Value("${spring.cloudinary.cloud_name}")
     private String cloudName;
 
-    @Value("${API_KEY}")
+    @Value("${spring.cloudinary.api_key}")
     private String apiKey;
 
-    @Value("${API_SECRET}")
+    @Value("${spring.cloudinary.api_secret}")
     private String apiSecret;
 
     @Bean

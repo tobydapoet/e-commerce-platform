@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Table(name = "inventories")
 @Data
 public class Inventory {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +23,7 @@ public class Inventory {
     private ProductVariant productVariant;
 
     @Column(nullable = false)
-    private Integer quantity;
+    private Integer quantity = 0;
 
     @Column(nullable = false)
     private Integer reservedQuantity = 0;
