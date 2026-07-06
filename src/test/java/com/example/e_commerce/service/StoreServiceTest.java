@@ -133,9 +133,12 @@ class StoreServiceTest {
             req.setName("New Store");
             req.setPhone("0911111111");
 
-            when(storeRepo.save(any(Store.class))).thenReturn(null);
+            when(storeRepo.save(any(Store.class)))
+                    .thenThrow(new RuntimeException("Save failed"));
 
-            storeService.create(req, currentUser);
+            assertThrows(RuntimeException.class, () ->
+                    storeService.create(req, currentUser)
+            );
 
             verify(userRoleService, never()).updateUserRole(any(), any());
         }
