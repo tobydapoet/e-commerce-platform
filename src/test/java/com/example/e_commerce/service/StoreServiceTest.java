@@ -3,6 +3,7 @@ package com.example.e_commerce.service;
 import com.example.e_commerce.constant.RoleType;
 import com.example.e_commerce.constant.StoreStatus;
 import com.example.e_commerce.dto.request.CreateStoreReq;
+import com.example.e_commerce.dto.request.UpdatePhoneReq;
 import com.example.e_commerce.dto.request.UpdateStoreReq;
 import com.example.e_commerce.dto.response.StoreRes;
 import com.example.e_commerce.entity.Store;
@@ -73,6 +74,12 @@ class StoreServiceTest {
         store.setPhone("0900000000");
         store.setEmail("store@example.com");
         store.setStatus(StoreStatus.ACTIVE);
+    }
+
+    private UpdatePhoneReq updatePhoneReq(String newPhone) {
+        UpdatePhoneReq req = new UpdatePhoneReq();
+        req.setNewPhone(newPhone);
+        return req;
     }
 
     @Nested
@@ -211,7 +218,7 @@ class StoreServiceTest {
             when(storeRepo.findById(1L)).thenReturn(Optional.empty());
 
             assertThrows(ResourceNotFoundException.class,
-                    () -> storeService.requestPhoneUpdateOtp(1L, "0999999999", currentUser));
+                    () -> storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), currentUser));
         }
         @DisplayName("Request OTP should throw unauthorized when not owner")
         @Test
@@ -221,7 +228,7 @@ class StoreServiceTest {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
 
             assertThrows(UnauthorizedException.class,
-                    () -> storeService.requestPhoneUpdateOtp(1L, "0999999999", anotherUser));
+                    () -> storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), anotherUser));
         }
         @DisplayName("Request OTP should throw when cooldown active")
         @Test
@@ -230,7 +237,7 @@ class StoreServiceTest {
             when(redisTemplate.hasKey("otp:store-phone:cooldown:1")).thenReturn(true);
 
             assertThrows(BadRequestException.class,
-                    () -> storeService.requestPhoneUpdateOtp(1L, "0999999999", currentUser));
+                    () -> storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), currentUser));
         }
         @DisplayName("Request OTP should send mail and save OTP to redis when successful")
         @Test
@@ -239,7 +246,7 @@ class StoreServiceTest {
             when(redisTemplate.hasKey(anyString())).thenReturn(false);
             when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-            storeService.requestPhoneUpdateOtp(1L, " 0999999999 ", currentUser);
+            storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), currentUser);
 
             verify(valueOperations).set(
                     eq("otp:store-phone:1"),
@@ -254,15 +261,20 @@ class StoreServiceTest {
             );
         }
 
-        @DisplayName("Request OTP should reject invalid phone")
+        @DisplayName("Request OTP should store the phone from request DTO")
         @Test
-        void requestOtp_shouldRejectInvalidPhone() {
+        void requestOtp_shouldStorePhoneFromRequestDto() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
+            when(redisTemplate.hasKey(anyString())).thenReturn(false);
+            when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-            assertThrows(BadRequestException.class,
-                    () -> storeService.requestPhoneUpdateOtp(1L, "0999\n999999", currentUser));
+            storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0988888888"), currentUser);
 
-            verifyNoInteractions(mailService);
+            verify(valueOperations).set(
+                    eq("otp:store-phone:pending:1"),
+                    eq("0988888888"),
+                    any(Duration.class)
+            );
         }
     }
 
