@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class StoreService {
     private static final Duration OTP_TTL = Duration.ofMinutes(5);
     private static final Duration RESEND_COOLDOWN = Duration.ofSeconds(60);
     private static final int MAX_VERIFY_ATTEMPTS = 5;
+    private static final Pattern PHONE_PATTERN = Pattern.compile("^\\+?\\d{9,15}$");
 
     @Transactional
     public Store create(CreateStoreReq req, User currentUser) {
@@ -101,6 +103,7 @@ public class StoreService {
 
     public void requestPhoneUpdateOtp(Long storeId, UpdatePhoneReq req, User currentUser) {
         Store store = findById(storeId);
+        String newPhone = sanitizePhone(req.getNewPhone());
 
         if (!store.getOwner().getId().equals(currentUser.getId())) {
             throw new UnauthorizedException("You don't have permission to update this store!");
@@ -117,11 +120,24 @@ public class StoreService {
         String attemptsKey = "otp:store-phone:attempts:" + storeId;
 
         redisTemplate.opsForValue().set(otpKey, otp, OTP_TTL);
-        redisTemplate.opsForValue().set(pendingKey, req.getNewPhone(), OTP_TTL);
+        redisTemplate.opsForValue().set(pendingKey, newPhone, OTP_TTL);
         redisTemplate.opsForValue().set(cooldownKey, "1", RESEND_COOLDOWN);
         redisTemplate.delete(attemptsKey);
 
         mailService.sendOtp(currentUser.getEmail(), otp);
+    }
+
+    private String sanitizePhone(String phone) {
+        if (phone == null) {
+            throw new BadRequestException("Invalid phone number format");
+        }
+
+        String sanitizedPhone = phone.trim();
+        if (!PHONE_PATTERN.matcher(sanitizedPhone).matches()) {
+            throw new BadRequestException("Invalid phone number format");
+        }
+
+        return sanitizedPhone;
     }
 
     @Transactional

@@ -39,7 +39,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Store Service tests")
 class StoreServiceTest {
-
     @Mock
     private StoreRepository storeRepo;
     @Mock
@@ -74,12 +73,6 @@ class StoreServiceTest {
         store.setPhone("0900000000");
         store.setEmail("store@example.com");
         store.setStatus(StoreStatus.ACTIVE);
-    }
-
-    private UpdatePhoneReq updatePhoneReq(String newPhone) {
-        UpdatePhoneReq req = new UpdatePhoneReq();
-        req.setNewPhone(newPhone);
-        return req;
     }
 
     @Nested
@@ -215,29 +208,34 @@ class StoreServiceTest {
         @DisplayName("Request OTP should throw when store not found")
         @Test
         void requestOtp_shouldThrow_whenStoreNotFound() {
+            UpdatePhoneReq req = new UpdatePhoneReq();
+            req.setNewPhone("0999999999");
             when(storeRepo.findById(1L)).thenReturn(Optional.empty());
 
             assertThrows(ResourceNotFoundException.class,
-                    () -> storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), currentUser));
+                    () -> storeService.requestPhoneUpdateOtp(1L, req, currentUser));
         }
         @DisplayName("Request OTP should throw unauthorized when not owner")
         @Test
         void requestOtp_shouldThrowUnauthorized_whenNotOwner() {
             User anotherUser = new User();
             anotherUser.setId(UUID.randomUUID());
+            UpdatePhoneReq req = new UpdatePhoneReq();
+            req.setNewPhone("0999999999");
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
 
             assertThrows(UnauthorizedException.class,
-                    () -> storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), anotherUser));
+                    () -> storeService.requestPhoneUpdateOtp(1L, req, anotherUser));
         }
         @DisplayName("Request OTP should throw when cooldown active")
         @Test
         void requestOtp_shouldThrow_whenCooldownActive() {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
             when(redisTemplate.hasKey("otp:store-phone:cooldown:1")).thenReturn(true);
-
+            UpdatePhoneReq req = new UpdatePhoneReq();
+            req.setNewPhone("0999999999");
             assertThrows(BadRequestException.class,
-                    () -> storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), currentUser));
+                    () -> storeService.requestPhoneUpdateOtp(1L, req, currentUser));
         }
         @DisplayName("Request OTP should send mail and save OTP to redis when successful")
         @Test
@@ -245,8 +243,10 @@ class StoreServiceTest {
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
             when(redisTemplate.hasKey(anyString())).thenReturn(false);
             when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+            UpdatePhoneReq req = new UpdatePhoneReq();
+            req.setNewPhone("0999999999");
 
-            storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0999999999"), currentUser);
+            storeService.requestPhoneUpdateOtp(1L, req, currentUser);
 
             verify(valueOperations).set(
                     eq("otp:store-phone:1"),
@@ -264,11 +264,13 @@ class StoreServiceTest {
         @DisplayName("Request OTP should store the phone from request DTO")
         @Test
         void requestOtp_shouldStorePhoneFromRequestDto() {
+            UpdatePhoneReq req = new UpdatePhoneReq();
+            req.setNewPhone("0988888888");
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
             when(redisTemplate.hasKey(anyString())).thenReturn(false);
             when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-            storeService.requestPhoneUpdateOtp(1L, updatePhoneReq("0988888888"), currentUser);
+            storeService.requestPhoneUpdateOtp(1L, req, currentUser);
 
             verify(valueOperations).set(
                     eq("otp:store-phone:pending:1"),
