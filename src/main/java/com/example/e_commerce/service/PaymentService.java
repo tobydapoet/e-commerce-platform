@@ -10,7 +10,6 @@ import com.example.e_commerce.exception.ResourceNotFoundException;
 import com.example.e_commerce.repository.OrderRepository;
 import com.example.e_commerce.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +28,26 @@ public class PaymentService {
 
     @Transactional
     public Payment confirmPaid(String orderCode, BigDecimal amount, String transactionCode, LocalDateTime paidAt) {
+        return confirmPaidInternal(orderCode, amount, transactionCode, paidAt);
+    }
+
+    @Transactional
+    public Optional<Payment> confirmSepayWebhook(SepayWebhookReq req) {
+        if (req.getTransferType() != null && !"in".equalsIgnoreCase(req.getTransferType())) {
+            return Optional.empty();
+        }
+
+        String orderCode = resolveOrderCode(req);
+        String transactionCode = resolveTransactionCode(req);
+        return Optional.of(confirmPaidInternal(
+                orderCode,
+                req.getTransferAmount(),
+                transactionCode,
+                req.getTransactionDate()
+        ));
+    }
+
+    private Payment confirmPaidInternal(String orderCode, BigDecimal amount, String transactionCode, LocalDateTime paidAt) {
         if (orderCode == null || orderCode.isBlank()) {
             throw new BadRequestException("Order code is required.");
         }
@@ -64,17 +83,6 @@ public class PaymentService {
         payment.setPaidAt(paidAt != null ? paidAt : LocalDateTime.now());
 
         return paymentRepo.save(payment);
-    }
-
-    @Transactional
-    public Optional<Payment> confirmSepayWebhook(SepayWebhookReq req) {
-        if (req.getTransferType() != null && !"in".equalsIgnoreCase(req.getTransferType())) {
-            return Optional.empty();
-        }
-
-        String orderCode = resolveOrderCode(req);
-        String transactionCode = resolveTransactionCode(req);
-        return Optional.of(confirmPaid(orderCode, req.getTransferAmount(), transactionCode, req.getTransactionDate()));
     }
 
     private String resolveOrderCode(SepayWebhookReq req) {

@@ -259,10 +259,15 @@ class ReviewServiceTest {
         @Test
         void reviewDoesNotBelongToUser_throwsForbidden() {
             review.setUser(otherUser);
-            when(reviewRepo.findById(review.getId())).thenReturn(Optional.of(review));
 
-            assertThrows(ForbiddenException.class,
-                    () -> reviewService.delete(currentUser, review.getId()));
+            Long reviewId = review.getId();
+
+            when(reviewRepo.findById(reviewId)).thenReturn(Optional.of(review));
+
+            assertThrows(
+                    ForbiddenException.class,
+                    () -> reviewService.delete(currentUser, reviewId)
+            );
 
             verify(reviewRepo, never()).delete(any());
             verifyNoInteractions(productRepo);
