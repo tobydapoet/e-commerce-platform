@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
+    private static final String STORE_READ = "STORE_READ";
+
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;
@@ -96,7 +98,7 @@ public class DataInitializer implements ApplicationRunner {
                     || name.startsWith("ATTRIBUTE_")
                     || name.startsWith("ATTRIBUTE_VALUE_")
                     || name.startsWith("CATEGORY_")
-                    || name.equals("STORE_READ")
+                    || name.equals(STORE_READ)
                     || name.equals("ORDER_READ")) {
 
                 addMappingIfMissing(mappings, existingMappings, moderator, p);
@@ -109,7 +111,7 @@ public class DataInitializer implements ApplicationRunner {
                     || name.startsWith("ORDER_STORE_")
                     || name.startsWith("INVENTORY_")
                     || name.startsWith("COUPON_")
-                    || name.equals("STORE_READ")
+                    || name.equals(STORE_READ)
                     || name.equals("STORE_UPDATE")
                     || name.equals("STORE_DELETE")) {
 
@@ -126,7 +128,7 @@ public class DataInitializer implements ApplicationRunner {
                     || name.equals("PRODUCT_READ")
                     || name.equals("PRODUCT_VARIANT_READ")
                     || name.equals("CATEGORY_READ")
-                    || name.equals("STORE_READ")
+                    || name.equals(STORE_READ)
                     || name.equals("STORE_CREATE")
                     || name.equals("ORDER_READ")
                     || name.equals("ORDER_CREATE")

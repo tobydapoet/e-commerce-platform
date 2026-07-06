@@ -10,6 +10,7 @@ import com.example.e_commerce.exception.ResourceNotFoundException;
 import com.example.e_commerce.repository.OrderRepository;
 import com.example.e_commerce.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepo;
     private final OrderRepository orderRepo;
+    private final ObjectProvider<PaymentService> paymentServiceProvider;
 
     @Transactional
     public Payment confirmPaid(String orderCode, BigDecimal amount, String transactionCode, LocalDateTime paidAt) {
@@ -74,7 +76,8 @@ public class PaymentService {
 
         String orderCode = resolveOrderCode(req);
         String transactionCode = resolveTransactionCode(req);
-        return Optional.of(confirmPaid(orderCode, req.getTransferAmount(), transactionCode, req.getTransactionDate()));
+        return Optional.of(paymentServiceProvider.getObject()
+                .confirmPaid(orderCode, req.getTransferAmount(), transactionCode, req.getTransactionDate()));
     }
 
     private String resolveOrderCode(SepayWebhookReq req) {

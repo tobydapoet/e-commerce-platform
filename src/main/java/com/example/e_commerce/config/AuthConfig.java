@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -19,13 +20,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class AuthConfig {
 
+    private static final RequestMatcher BEARER_TOKEN_REQUEST =
+            request -> {
+                String authorization = request.getHeader("Authorization");
+                return authorization != null && authorization.startsWith("Bearer ");
+            };
+
     private final OauthHandler oauthHandler;
     private final JwtFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers(
+                                BEARER_TOKEN_REQUEST,
+                                request -> request.getRequestURI().startsWith("/auth/"),
+                                request -> request.getRequestURI().startsWith("/webhooks/")
+                        )
+                )
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(

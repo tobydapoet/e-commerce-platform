@@ -22,6 +22,7 @@ import java.util.List;
 
 @Service
 public class JwtService {
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Value("${jwt.secret}")
     private String SECRET;
@@ -72,7 +73,7 @@ public class JwtService {
 
     public String generateRefreshToken() {
         byte[] bytes = new byte[64];
-        new SecureRandom().nextBytes(bytes);
+        SECURE_RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 

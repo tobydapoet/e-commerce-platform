@@ -18,6 +18,7 @@ class ECommerceApplicationTests {
         @DisplayName("Context should load")
         @Test
         void contextLoads() {
+            // The assertion is that Spring Boot starts the application context without throwing.
         }
     }
 

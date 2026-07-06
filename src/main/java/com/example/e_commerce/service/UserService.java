@@ -23,11 +23,11 @@ public class UserService {
 
     public User findById(UUID id) {
         return userRepo.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public void updateUser(UUID id, UpdateUserReq req) {
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        User user = findById(id);
         if(req.getAvatar() != null) {
             if(user.getAvatar() != null) {
                 uploadService.delete(user.getAvatar());
@@ -42,7 +42,7 @@ public class UserService {
     }
 
     public void updateUserStatus(UUID id, UserStatus status) {
-        User user = userRepo.findById(id).orElseThrow(() -> new RuntimeException("User not found!"));
+        User user = findById(id);
         if(status != user.getStatus()) {
             user.setStatus(status);
             userRepo.save(user);
