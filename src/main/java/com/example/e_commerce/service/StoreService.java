@@ -3,6 +3,7 @@ package com.example.e_commerce.service;
 import com.example.e_commerce.constant.RoleType;
 import com.example.e_commerce.constant.StoreStatus;
 import com.example.e_commerce.dto.request.CreateStoreReq;
+import com.example.e_commerce.dto.request.UpdatePhoneReq;
 import com.example.e_commerce.dto.request.UpdateStoreReq;
 import com.example.e_commerce.dto.response.StoreRes;
 import com.example.e_commerce.entity.Store;
@@ -14,7 +15,6 @@ import com.example.e_commerce.mapper.StoreMapper;
 import com.example.e_commerce.repository.StoreRepository;
 import com.example.e_commerce.utils.OtpUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,9 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
+import java.util.regex.Pattern;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class StoreService {
@@ -101,7 +100,7 @@ public class StoreService {
         storeRepo.save(store);
     }
 
-    public void requestPhoneUpdateOtp(Long storeId, String newPhone, User currentUser) {
+    public void requestPhoneUpdateOtp(Long storeId, UpdatePhoneReq req, User currentUser) {
         Store store = findById(storeId);
 
         if (!store.getOwner().getId().equals(currentUser.getId())) {
@@ -119,7 +118,7 @@ public class StoreService {
         String attemptsKey = "otp:store-phone:attempts:" + storeId;
 
         redisTemplate.opsForValue().set(otpKey, otp, OTP_TTL);
-        redisTemplate.opsForValue().set(pendingKey, newPhone, OTP_TTL);
+        redisTemplate.opsForValue().set(pendingKey, req.getNewPhone(), OTP_TTL);
         redisTemplate.opsForValue().set(cooldownKey, "1", RESEND_COOLDOWN);
         redisTemplate.delete(attemptsKey);
 

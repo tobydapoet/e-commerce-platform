@@ -5,8 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class OtpReq {
-
+public class UpdatePhoneReq {
     @NotBlank(message = "New phone number is required")
     @Pattern(regexp = "^\\+?\\d{9,15}$", message = "Invalid phone number format")
     private String newPhone;

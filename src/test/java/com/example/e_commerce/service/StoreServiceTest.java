@@ -239,7 +239,7 @@ class StoreServiceTest {
             when(redisTemplate.hasKey(anyString())).thenReturn(false);
             when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-            storeService.requestPhoneUpdateOtp(1L, "0999999999", currentUser);
+            storeService.requestPhoneUpdateOtp(1L, " 0999999999 ", currentUser);
 
             verify(valueOperations).set(
                     eq("otp:store-phone:1"),
@@ -252,6 +252,17 @@ class StoreServiceTest {
                     eq("0999999999"),
                     any(Duration.class)
             );
+        }
+
+        @DisplayName("Request OTP should reject invalid phone")
+        @Test
+        void requestOtp_shouldRejectInvalidPhone() {
+            when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
+
+            assertThrows(BadRequestException.class,
+                    () -> storeService.requestPhoneUpdateOtp(1L, "0999\n999999", currentUser));
+
+            verifyNoInteractions(mailService);
         }
     }
 

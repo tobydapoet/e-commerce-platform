@@ -2,12 +2,11 @@ package com.example.e_commerce.controller;
 
 import com.example.e_commerce.constant.StoreStatus;
 import com.example.e_commerce.dto.request.CreateStoreReq;
-import com.example.e_commerce.dto.request.OtpReq;
+import com.example.e_commerce.dto.request.UpdatePhoneReq;
 import com.example.e_commerce.dto.request.UpdateStoreReq;
 import com.example.e_commerce.dto.request.VerifyOtpReq;
 import com.example.e_commerce.dto.response.MessageRes;
 import com.example.e_commerce.dto.response.StoreRes;
-import com.example.e_commerce.entity.Store;
 import com.example.e_commerce.entity.User;
 import com.example.e_commerce.service.StoreService;
 import jakarta.validation.Valid;
@@ -66,14 +65,14 @@ public class StoreController {
     @PreAuthorize("hasAuthority('STORE_UPDATE')")
     public ResponseEntity<MessageRes> requestPhoneOtp(
             @PathVariable Long storeId,
-            @Valid @RequestBody OtpReq req,
+            @Valid @RequestBody UpdatePhoneReq req,
             @AuthenticationPrincipal User currentUser
     ) {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        storeService.requestPhoneUpdateOtp(storeId, req.getNewPhone(), currentUser);
+        storeService.requestPhoneUpdateOtp(storeId, req, currentUser);
         return ResponseEntity.ok(new MessageRes("OTP sent successfully."));
     }
 
