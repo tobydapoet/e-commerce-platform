@@ -47,6 +47,7 @@ public class StoreController {
     }
 
     @PutMapping("/{storeId}")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
     public ResponseEntity<MessageRes> update(
             @PathVariable Long storeId,
             @Valid @ModelAttribute UpdateStoreReq req,
@@ -62,6 +63,7 @@ public class StoreController {
     }
 
     @PostMapping("/{storeId}/phone/request-otp")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
     public ResponseEntity<MessageRes> requestPhoneOtp(
             @PathVariable Long storeId,
             @Valid @RequestBody OtpReq req,
@@ -76,6 +78,7 @@ public class StoreController {
     }
 
     @PostMapping("/{storeId}/phone/verify-otp")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
     public ResponseEntity<MessageRes> verifyPhoneOtp(
             @PathVariable Long storeId,
             @Valid @RequestBody VerifyOtpReq req,
@@ -90,7 +93,7 @@ public class StoreController {
     }
 
     @PatchMapping("/{storeId}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('STORE_UPDATE')")
     public ResponseEntity<MessageRes> updateStatus(
             @PathVariable Long storeId,
             @RequestParam StoreStatus status
@@ -100,6 +103,7 @@ public class StoreController {
     }
 
     @PatchMapping("/{storeId}/deactivate")
+    @PreAuthorize("hasAuthority('STORE_DELETE')")
     public ResponseEntity<MessageRes> deactivate(
             @PathVariable Long storeId,
             @AuthenticationPrincipal User currentUser
@@ -113,6 +117,7 @@ public class StoreController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('STORE_READ')")
     public Page<StoreRes> search(
             @RequestParam(required = false, defaultValue = "") String keyword,
             @PageableDefault(size = 20) Pageable pageable
@@ -121,6 +126,7 @@ public class StoreController {
     }
 
     @GetMapping("/my-stores")
+    @PreAuthorize("hasAuthority('STORE_READ')")
     public ResponseEntity<List<StoreRes>> getMyStores(@AuthenticationPrincipal User currentUser) {
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

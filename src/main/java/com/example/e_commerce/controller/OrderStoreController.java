@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +20,7 @@ public class OrderStoreController {
     private final OrderStoreService orderStoreService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ORDER_STORE_READ')")
     public ResponseEntity<Page<OrderStoreRes>> getOrdersByStore(
             @PathVariable Long storeId,
             @AuthenticationPrincipal User currentUser,
@@ -33,6 +35,7 @@ public class OrderStoreController {
     }
 
     @PatchMapping("/{orderStoreId}/status")
+    @PreAuthorize("hasAuthority('ORDER_STORE_UPDATE')")
     public ResponseEntity<Void> updateStatus(
             @PathVariable Long orderStoreId,
             @RequestParam OrderStoreStatus status,

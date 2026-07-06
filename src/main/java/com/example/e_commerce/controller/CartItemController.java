@@ -7,6 +7,7 @@ import com.example.e_commerce.service.CartItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +19,7 @@ public class CartItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('CART_CREATE')")
     public void create(
             @AuthenticationPrincipal User currentUser,
             @Valid @RequestBody CreateCartItemReq req
@@ -27,6 +29,7 @@ public class CartItemController {
 
     @PatchMapping("/{id}/quantity")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('CART_UPDATE')")
     public void updateQuantity(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long id,
@@ -37,6 +40,7 @@ public class CartItemController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAuthority('CART_DELETE')")
     public void delete(
             @AuthenticationPrincipal User currentUser,
             @PathVariable Long id

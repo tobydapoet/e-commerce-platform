@@ -109,28 +109,28 @@ jobs:
     steps:
       - name: Deploy to Render
         run: |
-          echo "🚀 Triggering Render deployment..."
+          echo "Triggering Render deployment..."
 
           # Trigger deploy
           RESPONSE=$(curl -s -X POST \
             "https://api.render.com/deploy/srv-${{ secrets.RENDER_SERVICE_ID }}?key=${{ secrets.RENDER_API_KEY }}")
 
-          echo "📋 Deploy Response:"
+          echo "Deploy Response:"
           echo "$RESPONSE"
 
           # Check if successful
           if echo "$RESPONSE" | grep -q "success\|triggered"; then
-            echo "✅ Deploy triggered successfully!"
+            echo "Deploy triggered successfully!"
           else
-            echo "⚠️ Deploy response:"
+            echo "Deploy response:"
             echo "$RESPONSE"
           fi
 
       - name: Wait and Check Status
         run: |
-          echo "⏳ Waiting for Render deployment..."
+          echo "Waiting for Render deployment..."
           sleep 30
 
-          echo "📋 Checking Render status..."
+          echo "Checking Render status..."
           curl -s -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
             "https://api.render.com/v1/services/srv-${{ secrets.RENDER_SERVICE_ID }}" | jq '.service.status'

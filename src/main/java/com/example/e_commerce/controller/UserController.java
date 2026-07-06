@@ -29,6 +29,7 @@ public class UserController {
     private final UserMapper mapper;
 
     @GetMapping("/me")
+    @PreAuthorize("hasAuthority('USER_SELF_READ')")
     public ResponseEntity<UserSimpleRes> getCurrentUser(
             @AuthenticationPrincipal User currentUser
     ) {
@@ -41,6 +42,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER_READ')")
     public ResponseEntity<UserSimpleRes> getById(
             @PathVariable UUID id
     ) {
@@ -49,6 +51,7 @@ public class UserController {
     }
 
     @PutMapping("/me")
+    @PreAuthorize("hasAuthority('USER_SELF_UPDATE')")
     public ResponseEntity<MessageRes> updateCurrentUser(
             @Valid @ModelAttribute UpdateUserReq req,
             @AuthenticationPrincipal User currentUser
@@ -63,7 +66,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/status")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<MessageRes> updateStatus(
             @PathVariable UUID id,
             @RequestParam UserStatus status
@@ -74,7 +77,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('USER_READ')")
     public Page<UserSimpleRes> search(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) RoleType roleName,
@@ -87,6 +90,7 @@ public class UserController {
     }
 
     @GetMapping("/customers")
+    @PreAuthorize("hasAuthority('USER_READ')")
     public Page<UserSimpleRes> customerSearch(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,

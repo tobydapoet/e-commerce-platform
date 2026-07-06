@@ -11,6 +11,7 @@ import com.example.e_commerce.service.CouponService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +22,7 @@ public class CouponController {
     private final CouponService couponService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('COUPON_CREATE')")
     public ResponseEntity<Coupon> create(
             @RequestBody CreateCouponReq req,
             @RequestParam CreatorType creatorType,
@@ -35,6 +37,7 @@ public class CouponController {
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('COUPON_UPDATE')")
     public ResponseEntity<Coupon> updateStatus(
             @PathVariable Long id,
             @RequestParam CouponStatus status,
@@ -49,6 +52,7 @@ public class CouponController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('COUPON_UPDATE')")
     public ResponseEntity<Coupon> update(
             @PathVariable Long id,
             @RequestBody UpdateUnusedCouponReq req
@@ -58,6 +62,7 @@ public class CouponController {
     }
 
     @PutMapping("/{id}/used")
+    @PreAuthorize("hasAuthority('COUPON_UPDATE')")
     public ResponseEntity<Coupon> updateUsedCoupon(
             @PathVariable Long id,
             @RequestBody UpdateUsedCouponReq req

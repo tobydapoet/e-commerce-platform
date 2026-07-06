@@ -68,6 +68,287 @@ src/main/java/com/example/e_commerce
 `-- utils           Utility classes
 ```
 
+## Database Schema
+
+```mermaid
+erDiagram
+    USERS {
+        UUID id PK
+        string name
+        string email UK
+        string password
+        string provider_id
+        string avatar
+        string status
+        datetime created_at
+        datetime updated_at
+    }
+
+    ROLES {
+        bigint id PK
+        string user_role UK
+        string description
+    }
+
+    PERMISSIONS {
+        bigint id PK
+        string name UK
+    }
+
+    USER_ROLES {
+        bigint id PK
+        UUID user_id FK
+        bigint role_id FK
+    }
+
+    ROLE_PERMISSIONS {
+        bigint id PK
+        bigint role_id FK
+        bigint permission_id FK
+    }
+
+    SESSIONS {
+        bigint id PK
+        UUID user_id FK
+        string token UK
+        datetime expires_at
+        boolean revoked
+        datetime revoked_at
+        datetime created_at
+        datetime updated_at
+    }
+
+    ADDRESSES {
+        bigint id PK
+        UUID user_id FK
+        string name
+        string phone
+        string address
+        boolean is_default
+        datetime created_at
+        datetime updated_at
+        datetime deleted_at
+    }
+
+    STORES {
+        bigint id PK
+        UUID owner_id FK
+        string name
+        string description
+        string logo
+        string banner
+        string phone
+        string email
+        string status
+        datetime created_at
+        datetime updated_at
+    }
+
+    CATEGORIES {
+        bigint id PK
+        bigint parent_id FK
+        string name UK
+        string description
+        string status
+        datetime created_at
+        datetime updated_at
+    }
+
+    PRODUCTS {
+        bigint id PK
+        bigint store_id FK
+        bigint category_id FK
+        string name
+        text description
+        string thumbnail
+        string status
+        double average_rating
+        int sold_count
+        datetime created_at
+        datetime updated_at
+    }
+
+    ATTRIBUTES {
+        bigint id PK
+        bigint product_id FK
+        string name
+    }
+
+    ATTRIBUTE_VALUES {
+        bigint id PK
+        bigint attribute_id FK
+        string attribute_value
+    }
+
+    PRODUCT_VARIANTS {
+        bigint id PK
+        bigint product_id FK
+        string sku UK
+        decimal price
+        string image
+        string status
+        datetime created_at
+        datetime updated_at
+    }
+
+    PRODUCT_VARIANT_ATTRIBUTE_VALUES {
+        bigint id PK
+        bigint product_variant_id FK
+        bigint attribute_value_id FK
+    }
+
+    INVENTORIES {
+        bigint id PK
+        bigint product_variant_id FK
+        int quantity
+        datetime created_at
+        datetime updated_at
+    }
+
+    CART_STORES {
+        bigint id PK
+        UUID user_id FK
+        bigint store_id FK
+        bigint store_coupon_id FK
+        datetime created_at
+        datetime updated_at
+    }
+
+    CART_ITEMS {
+        bigint id PK
+        bigint cart_store_id FK
+        UUID user_id FK
+        bigint product_variant_id FK
+        int quantity
+        datetime created_at
+        datetime updated_at
+    }
+
+    COUPONS {
+        bigint id PK
+        bigint store_id FK
+        string code
+        string creator_type
+        string discount_type
+        decimal discount_value
+        decimal minimum_order
+        decimal maximum_discount
+        bigint quantity
+        date start_date
+        date end_date
+        string status
+        datetime created_at
+        datetime updated_at
+    }
+
+    ORDERS {
+        bigint id PK
+        UUID user_id FK
+        bigint address_id FK
+        bigint platform_coupon_id FK
+        string order_code UK
+        decimal subtotal
+        decimal discount
+        decimal total
+        datetime created_at
+        datetime updated_at
+    }
+
+    ORDER_STORES {
+        bigint id PK
+        bigint order_id FK
+        bigint store_id FK
+        bigint store_coupon_id FK
+        string status
+        decimal subtotal
+        decimal discount
+        decimal shipping_fee
+        decimal total
+        string note
+        datetime created_at
+        datetime updated_at
+    }
+
+    ORDER_ITEMS {
+        bigint id PK
+        bigint order_store_id FK
+        bigint product_variant_id FK
+        int quantity
+        decimal price
+        decimal subtotal
+    }
+
+    PAYMENTS {
+        bigint id PK
+        bigint order_id FK
+        string payment_method
+        string payment_status
+        string transaction_code UK
+        decimal amount
+        datetime paid_at
+        datetime created_at
+    }
+
+    REVIEWS {
+        bigint id PK
+        UUID user_id FK
+        bigint product_id FK
+        bigint order_item_id FK
+        int rating
+        text comment
+        datetime created_at
+    }
+
+    WISHLISTS {
+        bigint id PK
+        UUID user_id FK
+        bigint product_id FK
+        datetime created_at
+    }
+
+    USERS ||--o{ USER_ROLES : has
+    ROLES ||--o{ USER_ROLES : assigned
+    ROLES ||--o{ ROLE_PERMISSIONS : has
+    PERMISSIONS ||--o{ ROLE_PERMISSIONS : grants
+    USERS ||--o{ SESSIONS : owns
+    USERS ||--o{ ADDRESSES : owns
+    USERS ||--o{ STORES : owns
+    USERS ||--o{ CART_STORES : owns
+    USERS ||--o{ CART_ITEMS : owns
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ REVIEWS : writes
+    USERS ||--o{ WISHLISTS : saves
+
+    CATEGORIES ||--o{ CATEGORIES : parent
+    CATEGORIES ||--o{ PRODUCTS : groups
+    STORES ||--o{ PRODUCTS : sells
+    STORES ||--o{ COUPONS : owns
+    STORES ||--o{ CART_STORES : groups
+    STORES ||--o{ ORDER_STORES : fulfills
+
+    PRODUCTS ||--o{ ATTRIBUTES : defines
+    ATTRIBUTES ||--o{ ATTRIBUTE_VALUES : contains
+    PRODUCTS ||--o{ PRODUCT_VARIANTS : has
+    PRODUCT_VARIANTS ||--o{ PRODUCT_VARIANT_ATTRIBUTE_VALUES : maps
+    ATTRIBUTE_VALUES ||--o{ PRODUCT_VARIANT_ATTRIBUTE_VALUES : selected
+    PRODUCT_VARIANTS ||--|| INVENTORIES : stocks
+    PRODUCT_VARIANTS ||--o{ CART_ITEMS : added
+    PRODUCT_VARIANTS ||--o{ ORDER_ITEMS : ordered
+    PRODUCTS ||--o{ REVIEWS : receives
+    PRODUCTS ||--o{ WISHLISTS : saved
+
+    COUPONS ||--o{ CART_STORES : applied
+    COUPONS ||--o{ ORDERS : platform_discount
+    COUPONS ||--o{ ORDER_STORES : store_discount
+
+    CART_STORES ||--o{ CART_ITEMS : contains
+    ADDRESSES ||--o{ ORDERS : ships_to
+    ORDERS ||--o{ ORDER_STORES : splits
+    ORDERS ||--|| PAYMENTS : paid_by
+    ORDER_STORES ||--o{ ORDER_ITEMS : contains
+    ORDER_ITEMS ||--o| REVIEWS : reviewed_by
+```
+
 ## Environment Variables
 
 Create a `.env` file or export these variables in your environment:

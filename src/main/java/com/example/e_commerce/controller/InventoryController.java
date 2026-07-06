@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,6 +20,7 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @PatchMapping("/{id}/quantity")
+    @PreAuthorize("hasAuthority('INVENTORY_UPDATE')")
     public ResponseEntity<MessageRes> updateQuantity(
             @PathVariable Long id,
             @Valid @RequestBody UpdateQuantityReq request
@@ -29,6 +31,7 @@ public class InventoryController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('INVENTORY_READ')")
     public Page<InventoryRes> search(
             @RequestParam(required = false) String keyword,
             Pageable pageable

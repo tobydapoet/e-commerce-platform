@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,17 +28,20 @@ public class ProductController {
     private final ProductMapper mapper;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('PRODUCT_CREATE')")
     public ResponseEntity<ProductRes> create(@Valid @ModelAttribute CreateProductReq request) {
         Product product = productService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toProductRes(product));
     }
 
     @GetMapping("/{id}/detail")
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<ProductDetailRes> findByIdWithPrice(@PathVariable Long id) {
         return ResponseEntity.ok(productService.findByIdWithPrice(id));
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<Page<ProductRes>> getByPage(
             @PageableDefault(size = 20, sort = "id") Pageable pageable
     ) {
@@ -45,6 +49,7 @@ public class ProductController {
     }
 
     @GetMapping("/search")
+    @PreAuthorize("hasAuthority('PRODUCT_READ')")
     public ResponseEntity<Page<ProductRes>> search(
             @RequestParam(required = false) String keyword,
             @PageableDefault(size = 20, sort = "id") Pageable pageable
@@ -53,6 +58,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     public ResponseEntity<MessageRes> update(
             @PathVariable Long id,
             @Valid @ModelAttribute UpdateProductReq request
@@ -62,6 +68,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     public ResponseEntity<Void> updateStatus(
             @PathVariable Long id,
             @Valid @RequestBody UpdateProductStatusReq request

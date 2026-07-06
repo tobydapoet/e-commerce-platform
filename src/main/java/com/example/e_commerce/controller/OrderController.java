@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ORDER_CREATE')")
     public ResponseEntity<OrderRes> create(
             @RequestBody CreateOrderReq req,
             @AuthenticationPrincipal User currentUser
@@ -34,6 +36,7 @@ public class OrderController {
     }
 
     @GetMapping("/me")
+    @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<Page<OrderRes>> getMyOrders(
             @AuthenticationPrincipal User currentUser,
             Pageable pageable
@@ -47,6 +50,7 @@ public class OrderController {
     }
 
     @GetMapping("/me/{id}")
+    @PreAuthorize("hasAuthority('ORDER_READ')")
     public ResponseEntity<OrderRes> getMyOrderDetail(
             @PathVariable Long id,
             @AuthenticationPrincipal User currentUser

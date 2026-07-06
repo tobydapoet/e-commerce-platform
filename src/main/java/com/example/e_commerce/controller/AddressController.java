@@ -25,6 +25,7 @@ public class AddressController {
     private final AddressService addressService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADDRESS_READ_ALL')")
     public Page<AddressRes> getAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
@@ -34,6 +35,7 @@ public class AddressController {
     }
 
     @GetMapping("/user")
+    @PreAuthorize("hasAuthority('ADDRESS_READ')")
     public Page<AddressRes> getByUser(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -44,6 +46,7 @@ public class AddressController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADDRESS_READ')")
     public ResponseEntity<AddressRes> getById(
             @PathVariable Long id,
             @AuthenticationPrincipal User currentUser
@@ -56,7 +59,7 @@ public class AddressController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('ADDRESS_CREATE')")
     public ResponseEntity<MessageRes> create(
             @Valid @RequestBody CreateAddressReq req,
             @AuthenticationPrincipal User currentUser
@@ -66,7 +69,8 @@ public class AddressController {
                 .body(new MessageRes("User created address successfully."));
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADDRESS_UPDATE')")
     public ResponseEntity<MessageRes> update(
             @Valid @RequestBody UpdateAddressReq req,
             @PathVariable Long id,
@@ -77,7 +81,8 @@ public class AddressController {
                 .body(new MessageRes("Address updated successfully."));
     }
 
-    @PutMapping("default")
+    @PutMapping("/{id}/default")
+    @PreAuthorize("hasAuthority('ADDRESS_UPDATE')")
     public ResponseEntity<MessageRes> updateDefault(
             @PathVariable Long id,
             @AuthenticationPrincipal User currentUser
@@ -88,6 +93,7 @@ public class AddressController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADDRESS_DELETE')")
     public ResponseEntity<MessageRes> delete(
             @PathVariable Long id,
             @AuthenticationPrincipal User currentUser

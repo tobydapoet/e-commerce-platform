@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
-
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;
@@ -52,7 +51,6 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedPermissions() {
-
         Set<PermissionName> existing = permissionRepository.findAll()
                 .stream()
                 .map(Permission::getName)
@@ -71,15 +69,16 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedRolePermissions() {
-
-        if (rolePermissionRepository.count() > 0) return;
-
         Role admin = roleRepository.findByRoleName(RoleType.ADMIN).orElseThrow();
         Role moderator = roleRepository.findByRoleName(RoleType.MODERATOR).orElseThrow();
         Role seller = roleRepository.findByRoleName(RoleType.SELLER).orElseThrow();
         Role customer = roleRepository.findByRoleName(RoleType.CUSTOMER).orElseThrow();
 
         List<Permission> allPermissions = permissionRepository.findAll();
+        Set<String> existingMappings = rolePermissionRepository.findAll()
+                .stream()
+                .map(mapping -> mapping.getRole().getId() + ":" + mapping.getPermission().getId())
+                .collect(Collectors.toSet());
 
         List<RolePermission> mappings = new ArrayList<>();
 
@@ -87,32 +86,71 @@ public class DataInitializer implements ApplicationRunner {
 
             String name = p.getName().name();
 
-            mappings.add(new RolePermission(null, admin, p));
+            addMappingIfMissing(mappings, existingMappings, admin, p);
 
-            if (name.startsWith("USER_")
+            if (name.equals("USER_READ")
+                    || name.equals("USER_UPDATE")
+                    || name.equals("ADDRESS_READ_ALL")
                     || name.startsWith("PRODUCT_")
+                    || name.startsWith("PRODUCT_VARIANT_")
+                    || name.startsWith("ATTRIBUTE_")
+                    || name.startsWith("ATTRIBUTE_VALUE_")
                     || name.startsWith("CATEGORY_")
+                    || name.equals("STORE_READ")
                     || name.equals("ORDER_READ")) {
 
-                mappings.add(new RolePermission(null, moderator, p));
+                addMappingIfMissing(mappings, existingMappings, moderator, p);
             }
 
             if (name.startsWith("PRODUCT_")
-                    || name.startsWith("ORDER_")
-                    || name.startsWith("INVENTORY_")) {
+                    || name.startsWith("PRODUCT_VARIANT_")
+                    || name.startsWith("ATTRIBUTE_")
+                    || name.startsWith("ATTRIBUTE_VALUE_")
+                    || name.startsWith("ORDER_STORE_")
+                    || name.startsWith("INVENTORY_")
+                    || name.startsWith("COUPON_")
+                    || name.equals("STORE_READ")
+                    || name.equals("STORE_UPDATE")
+                    || name.equals("STORE_DELETE")) {
 
-                mappings.add(new RolePermission(null, seller, p));
+                addMappingIfMissing(mappings, existingMappings, seller, p);
             }
 
-            if (name.equals("PRODUCT_READ")
+            if (name.equals("USER_SELF_READ")
+                    || name.equals("USER_SELF_UPDATE")
+                    || name.equals("ADDRESS_READ")
+                    || name.equals("ADDRESS_CREATE")
+                    || name.equals("ADDRESS_UPDATE")
+                    || name.equals("ADDRESS_DELETE")
+                    || name.startsWith("CART_")
+                    || name.equals("PRODUCT_READ")
+                    || name.equals("PRODUCT_VARIANT_READ")
+                    || name.equals("CATEGORY_READ")
+                    || name.equals("STORE_READ")
+                    || name.equals("STORE_CREATE")
                     || name.equals("ORDER_READ")
                     || name.equals("ORDER_CREATE")
+                    || name.equals("REVIEW_READ")
+                    || name.equals("REVIEW_CREATE")
+                    || name.equals("REVIEW_DELETE")
                     || name.startsWith("WISHLIST_")) {
 
-                mappings.add(new RolePermission(null, customer, p));
+                addMappingIfMissing(mappings, existingMappings, customer, p);
             }
         }
 
         rolePermissionRepository.saveAll(mappings);
+    }
+
+    private void addMappingIfMissing(
+            List<RolePermission> mappings,
+            Set<String> existingMappings,
+            Role role,
+            Permission permission
+    ) {
+        String key = role.getId() + ":" + permission.getId();
+        if (existingMappings.add(key)) {
+            mappings.add(new RolePermission(null, role, permission));
+        }
     }
 }

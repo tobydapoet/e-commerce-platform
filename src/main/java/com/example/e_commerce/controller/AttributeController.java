@@ -9,6 +9,7 @@ import com.example.e_commerce.service.AttributeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +22,7 @@ public class AttributeController {
     private final AttributeMapper mapper;
 
     @PostMapping("/products/{productId}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_CREATE')")
     public ResponseEntity<List<AttributeRes>> create(
             @PathVariable Long productId,
             @RequestBody CreateAttributeReq req
@@ -35,17 +37,20 @@ public class AttributeController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_READ')")
     public ResponseEntity<AttributeRes> findById(@PathVariable Long id) {
         Attribute attribute = attributeService.findById(id);
         return ResponseEntity.ok(mapper.toAttributeRes(attribute));
     }
 
     @GetMapping("/products/{productId}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_READ')")
     public ResponseEntity<List<AttributeRes>> findByProductId(@PathVariable Long productId) {
         return ResponseEntity.ok(attributeService.findByProductId(productId));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_UPDATE')")
     public ResponseEntity<Void> update(
             @PathVariable Long id,
             @RequestBody UpdateAttributeReq req
@@ -55,6 +60,7 @@ public class AttributeController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_DELETE')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         attributeService.delete(id);
         return ResponseEntity.noContent().build();

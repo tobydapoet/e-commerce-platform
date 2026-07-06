@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class AttributeValueController {
     private final AttributeValueMapper mapper;
 
     @PostMapping("/attributes/{attributeId}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_VALUE_CREATE')")
     public ResponseEntity<List<AttributeValueRes>> create(
             @PathVariable Long attributeId,
             @Valid @RequestBody CreateAttributeValueReq request
@@ -37,6 +39,7 @@ public class AttributeValueController {
     }
 
     @GetMapping("/attributes/{attributeId}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_VALUE_READ')")
     public ResponseEntity<List<AttributeValueRes>> findByAttributeId(
             @PathVariable Long attributeId
     ) {
@@ -44,6 +47,7 @@ public class AttributeValueController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_VALUE_UPDATE')")
     public ResponseEntity<Void> update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateAttributeValueReq request
@@ -53,6 +57,7 @@ public class AttributeValueController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ATTRIBUTE_VALUE_DELETE')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         attributeValueService.delete(id);
         return ResponseEntity.noContent().build();
