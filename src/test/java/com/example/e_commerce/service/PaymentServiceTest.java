@@ -57,6 +57,7 @@ class PaymentServiceTest {
         @DisplayName("Success creates paid payment")
         @Test
         void success_createsPaidPayment() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             LocalDateTime paidAt = LocalDateTime.of(2026, 7, 6, 21, 0);
 
             when(paymentRepo.findByTransactionCode("TXN-1")).thenReturn(Optional.empty());
@@ -66,7 +67,7 @@ class PaymentServiceTest {
 
             Payment result = paymentService.confirmPaid(
                     order.getOrderCode(),
-                    BigDecimal.valueOf(200_000),
+                    amount,
                     "TXN-1",
                     paidAt
             );
@@ -75,13 +76,14 @@ class PaymentServiceTest {
             assertEquals(PaymentMethod.BANK_TRANSFER, result.getPaymentMethod());
             assertEquals(PaymentStatus.PAID, result.getPaymentStatus());
             assertEquals("TXN-1", result.getTransactionCode());
-            assertEquals(0, BigDecimal.valueOf(200_000).compareTo(result.getAmount()));
+            assertEquals(0, amount.compareTo(result.getAmount()));
             assertEquals(paidAt, result.getPaidAt());
             verify(paymentRepo).save(any(Payment.class));
         }
         @DisplayName("Existing transaction returns existing payment")
         @Test
         void existingTransaction_returnsExistingPayment() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             Payment existing = new Payment();
             existing.setId(99L);
 
@@ -89,7 +91,7 @@ class PaymentServiceTest {
 
             Payment result = paymentService.confirmPaid(
                     order.getOrderCode(),
-                    BigDecimal.valueOf(200_000),
+                    amount,
                     "TXN-1",
                     null
             );
@@ -101,6 +103,7 @@ class PaymentServiceTest {
         @DisplayName("Existing order payment returns existing payment")
         @Test
         void existingOrderPayment_returnsExistingPayment() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             Payment existing = new Payment();
             existing.setId(88L);
 
@@ -110,7 +113,7 @@ class PaymentServiceTest {
 
             Payment result = paymentService.confirmPaid(
                     order.getOrderCode(),
-                    BigDecimal.valueOf(200_000),
+                    amount,
                     "TXN-2",
                     null
             );
@@ -121,13 +124,14 @@ class PaymentServiceTest {
         @DisplayName("Order not found throws resource not found")
         @Test
         void orderNotFound_throwsResourceNotFound() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             when(paymentRepo.findByTransactionCode("TXN-1")).thenReturn(Optional.empty());
             when(orderRepo.findByOrderCode(order.getOrderCode())).thenReturn(Optional.empty());
 
             assertThrows(ResourceNotFoundException.class,
                     () -> paymentService.confirmPaid(
                             order.getOrderCode(),
-                            BigDecimal.valueOf(200_000),
+                            amount,
                             "TXN-1",
                             null
                     ));
@@ -137,6 +141,7 @@ class PaymentServiceTest {
         @DisplayName("Paid amount less than total throws bad request")
         @Test
         void paidAmountLessThanTotal_throwsBadRequest() {
+            BigDecimal amount = BigDecimal.valueOf(199_999);
             when(paymentRepo.findByTransactionCode("TXN-1")).thenReturn(Optional.empty());
             when(orderRepo.findByOrderCode(order.getOrderCode())).thenReturn(Optional.of(order));
             when(paymentRepo.findByOrderId(order.getId())).thenReturn(Optional.empty());
@@ -144,7 +149,7 @@ class PaymentServiceTest {
             assertThrows(BadRequestException.class,
                     () -> paymentService.confirmPaid(
                             order.getOrderCode(),
-                            BigDecimal.valueOf(199_999),
+                            amount,
                             "TXN-1",
                             null
                     ));

@@ -83,10 +83,12 @@ class UserServiceTest {
         @DisplayName("Update user should throw when user not found")
         @Test
         void updateUser_shouldThrow_whenUserNotFound() {
+            UpdateUserReq req = new UpdateUserReq();
+
             when(userRepo.findById(userId)).thenReturn(Optional.empty());
 
             assertThrows(RuntimeException.class,
-                    () -> userService.updateUser(userId, new UpdateUserReq()));
+                    () -> userService.updateUser(userId, req));
         }
         @DisplayName("Update user should update name when provided")
         @Test

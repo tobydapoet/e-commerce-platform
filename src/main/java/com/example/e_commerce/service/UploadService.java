@@ -2,6 +2,7 @@ package com.example.e_commerce.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.e_commerce.exception.BadRequestException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,7 +54,7 @@ public class UploadService {
     public void delete(String url) {
         String[] parts = url.split("/upload/");
         if (parts.length < 2)
-            throw new RuntimeException("Invalid Cloudinary URL");
+            throw new BadRequestException("Invalid Cloudinary URL");
 
         String path = parts[1];
 

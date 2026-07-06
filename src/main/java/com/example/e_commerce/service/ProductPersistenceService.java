@@ -75,7 +75,6 @@ public class ProductPersistenceService {
 
         List<ProductVariantAttributeValue> variantAttributeValues = new ArrayList<>();
         List<Inventory> inventories = new ArrayList<>();
-        List<ProductVariant> variantsToUpdateImage = new ArrayList<>();
 
         for (int i = 0; i < variantReqs.size(); i++) {
             CreateProductReq.VariantReq variantReq = variantReqs.get(i);
@@ -84,7 +83,6 @@ public class ProductPersistenceService {
             String variantImageUrl = variantImageUrlByIndex.get(i);
             if (variantImageUrl != null) {
                 variant.setImage(variantImageUrl);
-                variantsToUpdateImage.add(variant);
             }
 
             for (CreateProductReq.OptionReq opt : variantReq.getOptions()) {

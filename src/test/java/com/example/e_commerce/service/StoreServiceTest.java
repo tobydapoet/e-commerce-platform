@@ -160,10 +160,15 @@ class StoreServiceTest {
         void update_shouldThrowUnauthorized_whenCurrentUserIsNotOwner() {
             User anotherUser = new User();
             anotherUser.setId(UUID.randomUUID());
+
+            UpdateStoreReq req = new UpdateStoreReq();
+
             when(storeRepo.findById(1L)).thenReturn(Optional.of(store));
 
-            assertThrows(UnauthorizedException.class,
-                    () -> storeService.update(1L, new UpdateStoreReq(), anotherUser));
+            assertThrows(
+                    UnauthorizedException.class,
+                    () -> storeService.update(1L, req, anotherUser)
+            );
         }
         @DisplayName("Update should delete old logo when new logo provided")
         @Test

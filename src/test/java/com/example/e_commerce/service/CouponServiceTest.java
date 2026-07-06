@@ -193,7 +193,7 @@ class CouponServiceTest {
 
             assertEquals("UPDATED", result.getCode());
             assertEquals(DiscountType.FIXED_AMOUNT, result.getDiscountType());
-            assertNull(result.getMaximumDiscount()); // bị clear do validateCoupon với FIXED_AMOUNT
+            assertNull(result.getMaximumDiscount());
         }
         @DisplayName("Used throws bad request")
         @Test
@@ -315,66 +315,75 @@ class CouponServiceTest {
         @DisplayName("Valid returns coupon")
         @Test
         void valid_returnsCoupon() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
+
             when(couponRepo.findById(1L)).thenReturn(Optional.of(coupon));
 
-            Coupon result = couponService.validateAndGet(1L, CreatorType.SYSTEM, BigDecimal.valueOf(200_000));
+            Coupon result = couponService.validateAndGet(1L, CreatorType.SYSTEM, amount);
 
             assertEquals(coupon, result);
         }
         @DisplayName("Wrong creator type throws bad request")
         @Test
         void wrongCreatorType_throwsBadRequest() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
+
             when(couponRepo.findById(1L)).thenReturn(Optional.of(coupon));
 
             assertThrows(BadRequestException.class,
-                    () -> couponService.validateAndGet(1L, CreatorType.STORE, BigDecimal.valueOf(200_000)));
+                    () -> couponService.validateAndGet(1L, CreatorType.STORE, amount));
         }
         @DisplayName("Not active throws bad request")
         @Test
         void notActive_throwsBadRequest() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             coupon.setStatus(CouponStatus.INACTIVE);
             when(couponRepo.findById(1L)).thenReturn(Optional.of(coupon));
 
             assertThrows(BadRequestException.class,
-                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, BigDecimal.valueOf(200_000)));
+                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, amount));
         }
         @DisplayName("Expired throws bad request")
         @Test
         void expired_throwsBadRequest() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             coupon.setStartDate(LocalDate.now().minusDays(10));
             coupon.setEndDate(LocalDate.now().minusDays(1));
             when(couponRepo.findById(1L)).thenReturn(Optional.of(coupon));
 
             assertThrows(BadRequestException.class,
-                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, BigDecimal.valueOf(200_000)));
+                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, amount));
         }
         @DisplayName("Not started yet throws bad request")
         @Test
         void notStartedYet_throwsBadRequest() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             coupon.setStartDate(LocalDate.now().plusDays(1));
             coupon.setEndDate(LocalDate.now().plusDays(10));
             when(couponRepo.findById(1L)).thenReturn(Optional.of(coupon));
 
             assertThrows(BadRequestException.class,
-                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, BigDecimal.valueOf(200_000)));
+                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, amount));
         }
         @DisplayName("Below minimum order throws bad request")
         @Test
         void belowMinimumOrder_throwsBadRequest() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             coupon.setMinimumOrder(BigDecimal.valueOf(500_000));
             when(couponRepo.findById(1L)).thenReturn(Optional.of(coupon));
 
             assertThrows(BadRequestException.class,
-                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, BigDecimal.valueOf(200_000)));
+                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, amount));
         }
         @DisplayName("Quantity zero throws bad request")
         @Test
         void quantityZero_throwsBadRequest() {
+            BigDecimal amount = BigDecimal.valueOf(200_000);
             coupon.setQuantity(0L);
             when(couponRepo.findById(1L)).thenReturn(Optional.of(coupon));
 
             assertThrows(BadRequestException.class,
-                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, BigDecimal.valueOf(200_000)));
+                    () -> couponService.validateAndGet(1L, CreatorType.SYSTEM, amount));
         }
     }
 

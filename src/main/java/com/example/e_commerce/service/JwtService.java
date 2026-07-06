@@ -29,8 +29,7 @@ public class JwtService {
 
     private Key key;
 
-    private final long accessTokenValidity = 1000 * 60 * 15;
-//    private final long accessTokenValidity = 30L * 24 * 3600 * 1000;
+    private final long accessTokenValidity = 30L * 24 * 3600 * 1000;
     private final long refreshTokenValidity = 30L * 24 * 3600 * 1000;
 
     @PostConstruct

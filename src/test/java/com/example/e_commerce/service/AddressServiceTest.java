@@ -96,19 +96,22 @@ public class AddressServiceTest {
         @DisplayName("Delete should throw when not found")
         @Test
         void delete_ShouldThrow_WhenNotFound() {
-    
+            UUID userId = UUID.randomUUID();
+
             when(addressRepo.findById(1L))
                     .thenReturn(Optional.empty());
-    
-            assertThrows(ResourceNotFoundException.class,
-                    () -> addressService.delete(UUID.randomUUID(), 1L));
-    
+
+            assertThrows(
+                    ResourceNotFoundException.class,
+                    () -> addressService.delete(userId, 1L)
+            );
+
             verify(addressRepo, never()).delete(any());
         }
         @DisplayName("Delete should throw when not owner")
         @Test
         void delete_ShouldThrow_WhenNotOwner() {
-    
+            UUID userId = UUID.randomUUID();
             User owner = new User();
             owner.setId(UUID.randomUUID());
     
@@ -119,7 +122,7 @@ public class AddressServiceTest {
                     .thenReturn(Optional.of(address));
     
             assertThrows(ForbiddenException.class,
-                    () -> addressService.delete(UUID.randomUUID(), 1L));
+                    () -> addressService.delete(userId , 1L));
     
             verify(addressRepo, never()).delete(any());
         }

@@ -173,10 +173,12 @@ class AttributeValueServiceTest {
         @DisplayName("Should throw when attribute not found")
         @Test
         void shouldThrow_whenAttributeNotFound() {
+            List<String> values = List.of("Red");
+
             when(attributeRepo.findById(99L)).thenReturn(Optional.empty());
 
             assertThatThrownBy(() ->
-                    attributeValueService.createForAttribute(99L, List.of("Red")))
+                    attributeValueService.createForAttribute(99L, values))
                     .isInstanceOf(ResourceNotFoundException.class)
                     .hasMessageContaining("Attribute not found");
 

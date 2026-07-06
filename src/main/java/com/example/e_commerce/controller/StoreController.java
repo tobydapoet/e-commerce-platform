@@ -88,7 +88,7 @@ public class StoreController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Store store = storeService.verifyAndUpdatePhone(storeId, req.getOtp(), currentUser);
+        storeService.verifyAndUpdatePhone(storeId, req.getOtp(), currentUser);
         return ResponseEntity.ok(new MessageRes("Store updated successfully."));
     }
 
