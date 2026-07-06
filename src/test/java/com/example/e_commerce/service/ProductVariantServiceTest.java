@@ -149,7 +149,7 @@ class ProductVariantServiceTest {
                     buildVariantReq(BigDecimal.TEN, null)
             );
 
-            when(uploadService.uploadMultiple(eq(List.of()), eq("variant_image")))
+            when(uploadService.uploadMultiple(List.of(), "variant_image"))
                     .thenReturn(List.of());
             when(productVariantRepo.saveAll(anyList()))
                     .thenAnswer(inv -> inv.getArgument(0));
@@ -158,12 +158,12 @@ class ProductVariantServiceTest {
 
             assertThat(result).hasSize(1);
             assertThat(result.get(0).getImage()).isNull();
-            verify(uploadService, times(1)).uploadMultiple(eq(List.of()), eq("variant_image"));
+            verify(uploadService, times(1)).uploadMultiple(List.of(), "variant_image");
         }
         @DisplayName("Should return empty list when requests empty")
         @Test
         void shouldReturnEmptyList_whenRequestsEmpty() {
-            when(uploadService.uploadMultiple(eq(List.of()), eq("variant_image")))
+            when(uploadService.uploadMultiple(List.of(), "variant_image"))
                     .thenReturn(List.of());
             when(productVariantRepo.saveAll(anyList())).thenReturn(List.of());
 

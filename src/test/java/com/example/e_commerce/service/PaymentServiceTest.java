@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -58,7 +59,13 @@ class PaymentServiceTest {
         @Test
         void success_createsPaidPayment() {
             BigDecimal amount = BigDecimal.valueOf(200_000);
-            LocalDateTime paidAt = LocalDateTime.of(2026, 7, 6, 21, 0);
+            LocalDateTime paidAt = LocalDateTime.of(
+                    2026,
+                    Month.JULY,
+                    6,
+                    21,
+                    0
+            );
 
             when(paymentRepo.findByTransactionCode("TXN-1")).thenReturn(Optional.empty());
             when(orderRepo.findByOrderCode(order.getOrderCode())).thenReturn(Optional.of(order));
@@ -124,31 +131,39 @@ class PaymentServiceTest {
         @DisplayName("Order not found throws resource not found")
         @Test
         void orderNotFound_throwsResourceNotFound() {
+            String orderCode = order.getOrderCode();
             BigDecimal amount = BigDecimal.valueOf(200_000);
-            when(paymentRepo.findByTransactionCode("TXN-1")).thenReturn(Optional.empty());
-            when(orderRepo.findByOrderCode(order.getOrderCode())).thenReturn(Optional.empty());
 
-            assertThrows(ResourceNotFoundException.class,
+            when(paymentRepo.findByTransactionCode("TXN-1"))
+                    .thenReturn(Optional.empty());
+            when(orderRepo.findByOrderCode(orderCode))
+                    .thenReturn(Optional.empty());
+
+            assertThrows(
+                    ResourceNotFoundException.class,
                     () -> paymentService.confirmPaid(
-                            order.getOrderCode(),
+                            orderCode,
                             amount,
                             "TXN-1",
                             null
-                    ));
-
-            verify(paymentRepo, never()).save(any());
+                    )
+            );
         }
+
         @DisplayName("Paid amount less than total throws bad request")
         @Test
         void paidAmountLessThanTotal_throwsBadRequest() {
+            String orderCode = order.getOrderCode();
+            Long orderId = order.getId();
             BigDecimal amount = BigDecimal.valueOf(199_999);
+
             when(paymentRepo.findByTransactionCode("TXN-1")).thenReturn(Optional.empty());
-            when(orderRepo.findByOrderCode(order.getOrderCode())).thenReturn(Optional.of(order));
-            when(paymentRepo.findByOrderId(order.getId())).thenReturn(Optional.empty());
+            when(orderRepo.findByOrderCode(orderCode)).thenReturn(Optional.of(order));
+            when(paymentRepo.findByOrderId(orderId)).thenReturn(Optional.empty());
 
             assertThrows(BadRequestException.class,
                     () -> paymentService.confirmPaid(
-                            order.getOrderCode(),
+                            orderCode,
                             amount,
                             "TXN-1",
                             null

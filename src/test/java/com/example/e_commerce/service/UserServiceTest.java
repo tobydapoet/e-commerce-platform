@@ -209,7 +209,7 @@ class UserServiceTest {
             Page<User> userPage = new PageImpl<>(List.of(user));
             UserSimpleRes res = mock(UserSimpleRes.class);
 
-            when(userRepo.search(eq("tung"), eq(RoleType.CUSTOMER), eq(UserStatus.ACTIVE), eq(pageable)))
+            when(userRepo.search("tung", RoleType.CUSTOMER, UserStatus.ACTIVE, pageable))
                     .thenReturn(userPage);
             when(mapper.toUserSimpleRes(user)).thenReturn(res);
 
@@ -226,7 +226,7 @@ class UserServiceTest {
             Page<User> userPage = new PageImpl<>(List.of(user));
             UserSimpleRes res = mock(UserSimpleRes.class);
 
-            when(userRepo.search(eq("tung"), eq(RoleType.ADMIN), eq(UserStatus.BLOCKED), eq(pageable)))
+            when(userRepo.search("tung", RoleType.ADMIN, UserStatus.BLOCKED, pageable))
                     .thenReturn(userPage);
             when(mapper.toUserSimpleRes(user)).thenReturn(res);
 
@@ -259,7 +259,7 @@ class UserServiceTest {
             Page<User> userPage = new PageImpl<>(List.of(user));
             UserSimpleRes res = mock(UserSimpleRes.class);
 
-            when(userRepo.search(eq("tung"), eq(RoleType.CUSTOMER), eq(UserStatus.ACTIVE), eq(pageable)))
+            when(userRepo.search("tung", RoleType.CUSTOMER, UserStatus.ACTIVE, pageable))
                     .thenReturn(userPage);
             when(mapper.toUserSimpleRes(user)).thenReturn(res);
 

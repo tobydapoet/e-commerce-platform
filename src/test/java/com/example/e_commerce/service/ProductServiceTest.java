@@ -114,7 +114,7 @@ class ProductServiceTest {
             when(req.getVariants()).thenReturn(List.of(variant1));
 
             when(uploadService.upload(thumbnail, "thumbnail_product")).thenReturn("thumb.jpg");
-            when(uploadService.uploadMultiple(eq(List.of()), eq("variant_image")))
+            when(uploadService.uploadMultiple(List.of(), "variant_image"))
                     .thenReturn(List.of());
             when(productPersistenceService.saveProduct(eq(req), eq("thumb.jpg"), anyMap()))
                     .thenReturn(product);

@@ -124,7 +124,6 @@ public class StoreService {
         redisTemplate.delete(attemptsKey);
 
         mailService.sendOtp(currentUser.getEmail(), otp);
-        log.info("OTP sent to owner {} for store {} phone update to {}", currentUser.getId(), storeId, newPhone);
     }
 
     @Transactional
