@@ -150,10 +150,11 @@ class StoreServiceTest {
         @DisplayName("Update should throw when store not found")
         @Test
         void update_shouldThrow_whenStoreNotFound() {
+            UpdateStoreReq req = new UpdateStoreReq();
             when(storeRepo.findById(1L)).thenReturn(Optional.empty());
 
             assertThrows(ResourceNotFoundException.class,
-                    () -> storeService.update(1L, new UpdateStoreReq(), currentUser));
+                    () -> storeService.update(1L, req, currentUser));
         }
         @DisplayName("Update should throw unauthorized when current user is not owner")
         @Test

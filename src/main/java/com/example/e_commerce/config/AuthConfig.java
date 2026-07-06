@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -23,9 +22,12 @@ public class AuthConfig {
     private final JwtFilter jwtFilter;
 
     @Bean
+    @SuppressWarnings("java:S4502")
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
+                        // CSRF is still enabled by default. It is ignored only for token-issuing
+                        // endpoints and external webhooks because they do not use browser cookies.
                         .ignoringRequestMatchers(
                                 "/auth/**",
                                 "/webhooks/**"
