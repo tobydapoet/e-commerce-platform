@@ -19,13 +19,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
 public class AuthConfig {
-
-    private static final RequestMatcher BEARER_TOKEN_REQUEST =
-            request -> {
-                String authorization = request.getHeader("Authorization");
-                return authorization != null && authorization.startsWith("Bearer ");
-            };
-
     private final OauthHandler oauthHandler;
     private final JwtFilter jwtFilter;
 
@@ -34,9 +27,8 @@ public class AuthConfig {
         http
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers(
-                                BEARER_TOKEN_REQUEST,
-                                request -> request.getRequestURI().startsWith("/auth/"),
-                                request -> request.getRequestURI().startsWith("/webhooks/")
+                                "/auth/**",
+                                "/webhooks/**"
                         )
                 )
 
@@ -49,23 +41,21 @@ public class AuthConfig {
                                 "/webhooks/**",
                                 "/error",
                                 "/test/**"
-                        )
-                        .permitAll()
-
-                        .anyRequest()
-                        .authenticated()
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint((request, response, ex) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
                             response.getWriter().write("""
-                                {
-                                  "code":"UNAUTHORIZED",
-                                  "message":"Authentication required",
-                                  "errors":null
-                                }
-                            """);
+                            {
+                              "code":"UNAUTHORIZED",
+                              "message":"Authentication required",
+                              "errors":null
+                            }
+                        """);
                         })
                         .accessDeniedHandler((request, response, ex) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -76,22 +66,15 @@ public class AuthConfig {
                               "message":"Access denied",
                               "errors":null
                             }
-                            """);
+                        """);
                         })
                 )
 
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-
                         .successHandler(oauthHandler)
-
-                        .authorizationEndpoint(auth -> auth
-                                .baseUri("/oauth2/authorize")
-                        )
-
-                        .redirectionEndpoint(redirect -> redirect
-                                .baseUri("/login/oauth2/code/*")
-                        )
+                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize"))
+                        .redirectionEndpoint(redirect -> redirect.baseUri("/login/oauth2/code/*"))
                 )
 
                 .formLogin(AbstractHttpConfigurer::disable)
