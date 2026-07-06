@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class PaymentService {
     private static final Pattern ORDER_CODE_PATTERN = Pattern.compile("\\bORD\\d{14}[A-Z0-9]{4}\\b");
-
     private final PaymentRepository paymentRepo;
     private final OrderRepository orderRepo;
     private final ObjectProvider<PaymentService> paymentServiceProvider;

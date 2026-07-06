@@ -64,9 +64,7 @@ public class StoreService {
             store.setEmail(req.getEmail());
         }
         Store savedStore = storeRepo.save(store);
-        if(savedStore != null) {
-            userRoleService.updateUserRole(currentUser.getId(), RoleType.SELLER);
-        }
+        userRoleService.updateUserRole(currentUser.getId(), RoleType.SELLER);
         return savedStore;
     }
 

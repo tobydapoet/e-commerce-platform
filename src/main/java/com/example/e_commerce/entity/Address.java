@@ -38,7 +38,7 @@ public class Address {
     private String phone;
 
     @Column(nullable = false)
-    private String address;
+    private String fullAddress;
 
     @Column(nullable = false)
     private Boolean isDefault = true;

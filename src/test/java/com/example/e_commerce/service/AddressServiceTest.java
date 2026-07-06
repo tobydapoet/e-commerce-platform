@@ -40,15 +40,6 @@ public class AddressServiceTest {
     @InjectMocks
     private AddressService addressService;
 
-
-
-
-
-
-
-
-
-
     @Nested
     @DisplayName("Create")
     class CreateTests {
@@ -63,7 +54,7 @@ public class AddressServiceTest {
             CreateAddressReq req = new CreateAddressReq();
             req.setName("Nguyen Van A");
             req.setPhone("0123456789");
-            req.setAddress("Ha Noi");
+            req.setFullAddress("Ha Noi");
     
             when(addressRepo.save(any(Address.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
@@ -75,7 +66,7 @@ public class AddressServiceTest {
     
             assertEquals("Nguyen Van A", result.getName());
             assertEquals("0123456789", result.getPhone());
-            assertEquals("Ha Noi", result.getAddress());
+            assertEquals("Ha Noi", result.getFullAddress());
             assertTrue(result.getIsDefault());
             assertEquals(user, result.getUser());
         }
@@ -152,7 +143,7 @@ public class AddressServiceTest {
             UpdateAddressReq req = new UpdateAddressReq();
             req.setName("New Name");
             req.setPhone("0999");
-            req.setAddress("Da Nang");
+            req.setFullAddress("Da Nang");
     
             when(addressRepo.findById(1L))
                     .thenReturn(Optional.of(address));
@@ -163,7 +154,7 @@ public class AddressServiceTest {
     
             assertEquals("New Name", address.getName());
             assertEquals("0999", address.getPhone());
-            assertEquals("Da Nang", address.getAddress());
+            assertEquals("Da Nang", address.getFullAddress());
         }
         @DisplayName("Update should throw resource not found exception when address not found")
         @Test

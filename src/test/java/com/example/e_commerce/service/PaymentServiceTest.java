@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -37,13 +38,14 @@ class PaymentServiceTest {
 
     @Mock private PaymentRepository paymentRepo;
     @Mock private OrderRepository orderRepo;
+    @Mock private ObjectProvider<PaymentService> paymentServiceProvider;
 
     private PaymentService paymentService;
     private Order order;
 
     @BeforeEach
     void setUp() {
-        paymentService = new PaymentService(paymentRepo, orderRepo);
+        paymentService = new PaymentService(paymentRepo, orderRepo, paymentServiceProvider);
 
         order = new Order();
         order.setId(1L);

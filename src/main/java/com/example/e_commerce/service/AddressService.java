@@ -30,7 +30,7 @@ public class AddressService {
         addressRepo.clearDefaultAddress(currentUser.getId());
 
         Address address = new Address();
-        address.setAddress(req.getAddress());
+        address.setFullAddress(req.getFullAddress());
         address.setName(req.getName());
         address.setPhone(req.getPhone());
         address.setUser(currentUser);
@@ -57,8 +57,8 @@ public class AddressService {
         if (!address.getUser().getId().equals(userId)) {
             throw new ForbiddenException("You don't have permission to update this address");
         }
-        if(req.getAddress() != null) {
-            address.setAddress(req.getAddress());
+        if(req.getFullAddress() != null) {
+            address.setFullAddress(req.getFullAddress());
         }
         if(req.getName() != null) {
             address.setName(req.getName());

@@ -16,5 +16,5 @@ public class CreateAddressReq {
 
     @NotBlank(message = "Address is required")
     @Size(max = 255)
-    private String address;
+    private String fullAddress;
 }

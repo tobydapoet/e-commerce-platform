@@ -12,5 +12,5 @@ public class UpdateAddressReq {
     private String phone;
 
     @Size(max = 255)
-    private String address;
+    private String fullAddress;
 }
