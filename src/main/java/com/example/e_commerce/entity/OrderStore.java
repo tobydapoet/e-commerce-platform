@@ -1,6 +1,5 @@
 package com.example.e_commerce.entity;
 
-import com.example.e_commerce.constant.OrderStatus;
 import com.example.e_commerce.constant.OrderStoreStatus;
 import jakarta.persistence.*;
 import lombok.*;

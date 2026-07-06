@@ -8,6 +8,6 @@ import lombok.Data;
 public class OtpReq {
 
     @NotBlank(message = "New phone number is required")
-    @Pattern(regexp = "^\\+?[0-9]{9,15}$", message = "Invalid phone number format")
+    @Pattern(regexp = "^\\+?\\d{9,15}$", message = "Invalid phone number format")
     private String newPhone;
 }

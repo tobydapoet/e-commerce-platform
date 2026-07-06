@@ -32,8 +32,8 @@ public class CartStoreService {
         return cartStoreRepo.save(cartStore);
     }
 
-    public CartStore findById(Long Id) {
-        return cartStoreRepo.findById(Id)
+    public CartStore findById(Long id) {
+        return cartStoreRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart store not found."));
     }
 

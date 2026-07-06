@@ -1,6 +1,5 @@
 package com.example.e_commerce.controller;
 
-import com.example.e_commerce.constant.ProductStatus;
 import com.example.e_commerce.dto.request.CreateProductReq;
 import com.example.e_commerce.dto.request.UpdateProductReq;
 import com.example.e_commerce.dto.request.UpdateProductStatusReq;

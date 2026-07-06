@@ -20,6 +20,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class AuthConfig {
     private final OauthHandler oauthHandler;
     private final JwtFilter jwtFilter;
+    private static final String UNAUTHORIZED_RESPONSE = """
+        {
+          "code":"UNAUTHORIZED",
+          "message":"Authentication required",
+          "errors":null
+        }
+        """;
+
+    private static final String FORBIDDEN_RESPONSE = """
+        {
+          "code":"FORBIDDEN",
+          "message":"Access denied",
+          "errors":null
+        }
+        """;
 
     @Bean
     @SuppressWarnings("java:S4502")
@@ -51,24 +66,12 @@ public class AuthConfig {
                         .authenticationEntryPoint((request, response, ex) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
-                            response.getWriter().write("""
-                            {
-                              "code":"UNAUTHORIZED",
-                              "message":"Authentication required",
-                              "errors":null
-                            }
-                        """);
+                            response.getWriter().write(UNAUTHORIZED_RESPONSE);
                         })
                         .accessDeniedHandler((request, response, ex) -> {
                             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                             response.setContentType("application/json");
-                            response.getWriter().write("""
-                            {
-                              "code":"FORBIDDEN",
-                              "message":"Access denied",
-                              "errors":null
-                            }
-                        """);
+                            response.getWriter().write(FORBIDDEN_RESPONSE);
                         })
                 )
 

@@ -25,8 +25,8 @@ public class AttributeValueService {
     private final AttributeValueMapper mapper;
     private static final int MAX_ATTRIBUTE_VALUES = 20;
 
-    public List<AttributeValue> findAllById(List<Long> Ids){
-        return attributeValueRepo.findAllById(Ids);
+    public List<AttributeValue> findAllById(List<Long> ids){
+        return attributeValueRepo.findAllById(ids);
     }
 
     public List<AttributeValue> createBatch(Map<Attribute, List<String>> valuesByAttribute) {

@@ -25,16 +25,16 @@ public class JwtService {
     private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     @Value("${jwt.secret}")
-    private String SECRET;
+    private String secret;
 
     private Key key;
 
-    private final long accessTokenValidity = 30L * 24 * 3600 * 1000;
-    private final long refreshTokenValidity = 30L * 24 * 3600 * 1000;
+    private static final long REFRESH_TOKEN_VALIDITY = 90L * 24 * 60 * 60 * 1000;
+    private static final long ACCESS_TOKEN_VALIDITY = 30L * 24 * 60 * 60 * 1000;
 
     @PostConstruct
     public void init() {
-        this.key = Keys.hmacShaKeyFor(SECRET.getBytes());
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
     }
 
     public String generateAccessToken(Session session) {
@@ -65,7 +65,7 @@ public class JwtService {
                 .claim("permissions", permissions)
                 .claim("userId", session.getUser().getId())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidity))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -77,7 +77,7 @@ public class JwtService {
     }
 
     public LocalDateTime getRefreshTokenExpiry() {
-        return LocalDateTime.now().plusSeconds(refreshTokenValidity / 1000);
+        return LocalDateTime.now().plusSeconds(REFRESH_TOKEN_VALIDITY / 1000);
     }
 
     public Claims parseToken(String token) {

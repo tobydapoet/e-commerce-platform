@@ -1,7 +1,6 @@
 package com.example.e_commerce.controller;
 
 import com.example.e_commerce.dto.response.ProductVariantRes;
-import com.example.e_commerce.entity.AttributeValue;
 import com.example.e_commerce.entity.ProductVariant;
 import com.example.e_commerce.mapper.ProductVariantMapper;
 import com.example.e_commerce.service.AttributeValueService;

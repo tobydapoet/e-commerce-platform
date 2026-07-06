@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 public class VerifyOtpReq {
     @NotBlank(message = "OTP is required")
-    @Pattern(regexp = "^[0-9]{6}$", message = "OTP must be 6 digits")
+    @Pattern(regexp = "^\\d{6}$", message = "OTP must be 6 digits")
     private String otp;
 }
