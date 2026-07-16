@@ -7,7 +7,6 @@ import com.example.e_commerce.entity.Address;
 import com.example.e_commerce.entity.User;
 import com.example.e_commerce.exception.ForbiddenException;
 import com.example.e_commerce.exception.ResourceNotFoundException;
-import com.example.e_commerce.exception.UnauthorizedException;
 import com.example.e_commerce.mapper.AddressMapper;
 import com.example.e_commerce.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;

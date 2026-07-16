@@ -123,17 +123,14 @@ class ProductPersistenceServiceTest {
             Product result = productPersistenceService.saveProduct(
                     req, "thumbnail.jpg", variantImageUrlByIndex);
 
-            // product được build và lưu đúng field
             assertThat(result.getName()).isEqualTo("T-Shirt");
             assertThat(result.getDescription()).isEqualTo("A nice t-shirt");
             assertThat(result.getThumbnail()).isEqualTo("thumbnail.jpg");
             assertThat(result.getCategory()).isEqualTo(category);
 
-            // variant2 được gán ảnh, variant1 không có ảnh
             assertThat(variant1Entity.getImage()).isNull();
             assertThat(variant2Entity.getImage()).isEqualTo("url2.jpg");
 
-            // verify các bước gọi đúng
             verify(categoryService, times(1)).findById(5L);
             verify(productRepo, times(1)).save(any(Product.class));
             verify(attributeService, times(1))
@@ -141,7 +138,6 @@ class ProductPersistenceServiceTest {
             verify(productVariantService, times(1))
                     .create(any(Product.class), eq(List.of(variant1Req, variant2Req)));
 
-            // verify inventory được tạo đúng số lượng và đúng variant
             ArgumentCaptor<List<Inventory>> inventoryCaptor = ArgumentCaptor.forClass(List.class);
             verify(inventoryService, times(1)).createBatch(inventoryCaptor.capture());
             List<Inventory> inventories = inventoryCaptor.getValue();
@@ -151,7 +147,6 @@ class ProductPersistenceServiceTest {
             assertThat(inventories.get(1).getProductVariant()).isEqualTo(variant2Entity);
             assertThat(inventories.get(1).getQuantity()).isEqualTo(20);
 
-            // verify mỗi variant-option map đúng sang attribute value
             ArgumentCaptor<List<ProductVariantAttributeValue>> pvavCaptor =
                     ArgumentCaptor.forClass(List.class);
             verify(productVariantAttributeService, times(1)).createBatch(pvavCaptor.capture());
@@ -167,7 +162,7 @@ class ProductPersistenceServiceTest {
         void shouldExtractDistinctAttributeNames() {
             CreateProductReq.OptionReq colorRed = buildOption("Color", "Red");
             CreateProductReq.OptionReq sizeM = buildOption("Size", "M");
-            CreateProductReq.OptionReq colorBlue = buildOption("Color", "Blue"); // trùng "Color"
+            CreateProductReq.OptionReq colorBlue = buildOption("Color", "Blue");
 
             CreateProductReq.VariantReq variant1 = buildVariant(
                     5, List.of(colorRed, sizeM));
@@ -208,7 +203,6 @@ class ProductPersistenceServiceTest {
 
             productPersistenceService.saveProduct(req, "thumb.jpg", Map.of());
 
-            // Chỉ có 2 tên duy nhất: "Color", "Size" -- dù xuất hiện 3 lần trong options
             assertThat(namesCaptor.getValue()).containsExactlyInAnyOrder("Color", "Size");
         }
         @DisplayName("Should throw when attribute value missing")
@@ -226,10 +220,9 @@ class ProductPersistenceServiceTest {
             when(attributeService.create(anyList(), any(Product.class)))
                     .thenReturn(List.of(colorAttribute));
 
-            // Cố tình trả về danh sách attribute value KHÔNG khớp với option "Color:Red"
             AttributeValue wrongValue = new AttributeValue();
             wrongValue.setAttribute(colorAttribute);
-            wrongValue.setValue("Green"); // khác với "Red" mà option yêu cầu
+            wrongValue.setValue("Green");
 
             when(attributeValueService.createBatch(anyMap()))
                     .thenReturn(List.of(wrongValue));

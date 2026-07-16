@@ -4,7 +4,6 @@ import com.example.e_commerce.dto.request.CreateAddressReq;
 import com.example.e_commerce.dto.request.UpdateAddressReq;
 import com.example.e_commerce.dto.response.AddressRes;
 import com.example.e_commerce.dto.response.MessageRes;
-import com.example.e_commerce.entity.Address;
 import com.example.e_commerce.entity.User;
 import com.example.e_commerce.service.AddressService;
 import jakarta.validation.Valid;

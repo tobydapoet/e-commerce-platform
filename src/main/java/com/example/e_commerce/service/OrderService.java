@@ -1,7 +1,6 @@
 package com.example.e_commerce.service;
 
 import com.example.e_commerce.constant.CreatorType;
-import com.example.e_commerce.constant.OrderStatus;
 import com.example.e_commerce.constant.OrderStoreStatus;
 import com.example.e_commerce.dto.request.CreateOrderReq;
 import com.example.e_commerce.dto.response.OrderRes;

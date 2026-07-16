@@ -2,14 +2,12 @@ package com.example.e_commerce.service;
 
 import com.example.e_commerce.dto.request.CreateProductReq;
 import com.example.e_commerce.entity.*;
-import com.example.e_commerce.exception.BadRequestException;
 import com.example.e_commerce.exception.ResourceNotFoundException;
 import com.example.e_commerce.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

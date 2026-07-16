@@ -2,9 +2,7 @@ package com.example.e_commerce.service;
 
 import com.example.e_commerce.constant.PermissionName;
 import com.example.e_commerce.constant.RoleType;
-import com.example.e_commerce.entity.Role;
 import com.example.e_commerce.entity.Session;
-import com.example.e_commerce.entity.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

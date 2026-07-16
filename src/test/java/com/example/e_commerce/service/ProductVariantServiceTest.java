@@ -137,7 +137,6 @@ class ProductVariantServiceTest {
 
             assertThat(uploadCaptor.getValue()).hasSize(1).containsExactly(img1);
 
-            // Variant index 0 và 2 không có ảnh, chỉ index 1 có ảnh đúng URL
             assertThat(result.get(0).getImage()).isNull();
             assertThat(result.get(1).getImage()).isEqualTo("url-for-index-1.jpg");
             assertThat(result.get(2).getImage()).isNull();
@@ -245,7 +244,6 @@ class ProductVariantServiceTest {
             av1.setId(1L);
             AttributeValue av2 = new AttributeValue();
             av2.setId(2L);
-            // id 3L không tồn tại -> repo chỉ trả về 2 phần tử
 
             when(attributeValueService.findAllById(ids)).thenReturn(List.of(av1, av2));
 

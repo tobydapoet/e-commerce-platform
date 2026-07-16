@@ -169,7 +169,7 @@ class OrderServiceTest {
         @DisplayName("Out of stock throws bad request")
         @Test
         void outOfStock_throwsBadRequest() {
-            inventory.setQuantity(1); // cần 2 nhưng chỉ còn 1
+            inventory.setQuantity(1);
 
             when(cartItemRepo.findAllByIdIn(req.getCartItemIds())).thenReturn(List.of(cartItem));
             when(addressService.findById(req.getAddressId())).thenReturn(address);

@@ -156,7 +156,6 @@ class CategoryServiceTest {
             when(req.getParentId()).thenReturn(7L);
 
             when(categoryRepo.findById(7L)).thenReturn(Optional.of(parent));
-            // Tên "Accessories" đã tồn tại ở nhánh khác, nhưng KHÔNG tồn tại dưới parent này
             when(categoryRepo.existsByNameAndParent("Accessories", parent)).thenReturn(false);
             when(categoryRepo.save(any(Category.class)))
                     .thenAnswer(inv -> inv.getArgument(0));

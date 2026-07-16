@@ -99,7 +99,6 @@ class ProductServiceTest {
             verify(productPersistenceService, times(1))
                     .saveProduct(eq(req), eq("thumbnail-url.jpg"), mapCaptor.capture());
 
-            // variant2 ở index 1 phải được gán đúng url vừa upload
             assertThat(mapCaptor.getValue()).containsEntry(1, "variant-url.jpg");
             assertThat(mapCaptor.getValue()).doesNotContainKey(0);
         }
@@ -339,7 +338,7 @@ class ProductServiceTest {
             productService.update(1L, req);
 
             assertThat(product.getName()).isEqualTo("New name");
-            assertThat(product.getDescription()).isEqualTo("Old desc"); // giữ nguyên
+            assertThat(product.getDescription()).isEqualTo("Old desc");
             verify(productRepo, times(1)).save(product);
             verifyNoInteractions(uploadService, categoryService);
         }
